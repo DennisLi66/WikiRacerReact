@@ -4,6 +4,85 @@ const cookieParser = require('cookie-parser');
 const wiki = require('wikijs').default;
 const axios = require('axios');
 const cheerio = require('cheerio');
+//functions
+
+function getTwoRandomSafe(){
+  // return array
+  var duoList = [];
+  var goodStarts = [
+  "Napkin",
+  "Raid:_Shadow_Legends",
+  "M. Night Shyamalan",
+  "Walt Disney",
+  "Dentistry",
+  "Aura_(paranormal)",
+  "Artificial intelligence",
+  "Emu",
+  "Parkour",
+  "Paradox",
+  "Neolithic Revolution",
+  "Jason Mraz",
+  "Jimi_Hendrix",
+  "Javascript",
+  "Cashew",
+  "Count_Dracula",
+  "Javascript",
+  "Ikea",
+  "Nitrogen",
+  "Batman"
+];
+  var goodEnds = [
+  "Marie Curie",
+  "Abraham_Lincoln",
+  "Nintendo",
+  'Georgia_(Country)',
+  "Tornado",
+  "Halloween"
+];
+  var start = goodStarts[Math.floor(Math.random() * goodStarts.length)];
+  var end = goodEnds[Math.floor(Math.random() * goodEnds.length)];
+  duoList.push(start);
+  duoList.push(end);
+  return duoList;
+}
+function getTwoRandomChaos(){
+  var duoList = [];
+  var articles = [
+  "Abraham_Lincoln",
+  "Jason Mraz",
+  "Nintendo",
+  "Jimi_Hendrix",
+  "Cashew",
+  "Javascript",
+  "Ikea",
+  "Nitrogen",
+  'Georgia_(Country)',
+  "Tornado",
+  "Count_Dracula",
+  "Marie Curie",
+  "Napkin",
+  "Raid:_Shadow_Legends",
+  "M. Night Shyamalan",
+  "Walt Disney",
+  "Dentistry",
+  "Aura_(paranormal)",
+  "Artificial intelligence",
+  "Emu",
+  "Parkour",
+  "Paradox",
+  "Batman",
+  "Neolithic Revolution"
+]
+  var start = articles[Math.floor(Math.random() * articles.length)];
+  var end = articles[Math.floor(Math.random() * articles.length)];
+  while (start === end){
+     end = articles[Math.floor(Math.random() * articles.length)];
+  }
+  duoList.push(start);
+  duoList.push(end);
+  return duoList;
+}
+// server
 
 const app = express();
 app.use(express.static("public"));
@@ -90,8 +169,30 @@ app.get("/test", function(req, res) {
     })
   }
   else if (random === 'soft'){
-
-  }else{
+    var details = getTwoRandomSafe();
+    return res.status(200).json({
+      status: 0,
+      message: "Randomization Successful.",
+      start: details[0],
+      current: details[0],
+      end: details[1],
+      steps: 0,
+      history: ''
+    })
+  }
+  else if (random === 'softchaos'){
+    var details = getTwoRandomChaos();
+    return res.status(200).json({
+      status: 0,
+      message: "Randomization Successful.",
+      start: details[0],
+      current: details[0],
+      end: details[1],
+      steps: 0,
+      history: ''
+    })
+  }
+  else{
     return res.status(200).json({
       status: 4,
       message: "A meaningful value for random has not been assigned."
