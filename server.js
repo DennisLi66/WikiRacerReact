@@ -113,8 +113,7 @@ app.post("/check", function(req, res) {
   })
 })
 app.get("/test", function(req, res) {
-  //FIX THIS CLEAR cookie
-  //FIX THIS PROVIDE AN EZ WAY to get easier randoms
+  res.clearCookie('wikiracer');
   var random = req.query.random;
   if (!random){
     return res.status(200).json({
@@ -141,7 +140,109 @@ app.get("/test", function(req, res) {
         message: "The ending article was not defined."
       })
     } else {
+      //Check that page exists
       //Check Ambiguity
+      console.log("Accessing WikiJS for checking...");
+      var startList = [];
+      var endList = [];
+      wiki().page(start).then(
+        page => {
+          if (page.pageprops && 'disambiguation' in page.pageprops) {
+            page.links().then(links => {
+              startList = links;
+            }).finally(function() {
+              wiki().page(end).then(
+                page => {
+                  if (page.pageprops && 'disambiguation' in page.pageprops) {
+                    page.links().then(links => {
+                      endList = links;
+                      console.log("Both Start and End Were ambiguous");
+                      return res.status(200).json({
+                        banner: 'WikiRacer: Disambiguation',
+                        startTerm: start,
+                        sAmbiguous: true,
+                        sList: startList.join('^'),
+                        endTerm: end,
+                        eAmbiguous: true,
+                        eList: endList.join('^')
+                      })
+                    });
+                  } else {
+                    console.log("Only Start Was Ambiguous");
+                    return res.status(200).json({
+                      status: 12,
+                      message: "Starting was Ambiguous",
+                      startTerm: start,
+                      sAmbiguous: true,
+                      sList: startList.join('^'),
+                      endTerm: end,
+                      eAmbiguous: false,
+                    })
+                  }
+                }, error => {
+                  console.log(error);
+                  return res.status(200).json({
+                    status: 5,
+                    message: "An error has occurred."
+                  });
+                }
+              )
+            });
+          } else {
+            wiki().page(end).then(
+              page => {
+                if (page.pageprops && 'disambiguation' in page.pageprops) {
+                  page.links().then(links => {
+                    endList = links;
+                    console.log("Only End was ambiguous");
+                    return res.status(200).json({
+                      status: 11,
+                      message: "Ending was Ambiguous",
+                      startTerm: start,
+                      sAmbiguous: false,
+                      endTerm: end,
+                      eAmbiguous: true,
+                      eList: endList.join('^')
+                    })
+                  });
+                } else {
+                  console.log("Nobody was ambiguous");
+                  let cookieObj = {
+                    start: start,
+                    current: start,
+                    end: end,
+                    steps: 0,
+                    history: ''
+                  }
+                  res.cookie("wikiracer", cookieObj);
+                  return res.status(200).json({
+                    status: 0,
+                    message: "Values Established.",
+                    start: start,
+                    current: start,
+                    end: end,
+                    steps: 0,
+                    history: ''
+                  })
+                }
+              }, error => {
+                console.log(error);
+                return res.status(200).json({
+                  status: 5,
+                  message: "An error has occurred."
+                });
+              }
+            )
+          }
+        },
+        error => {
+          console.log(error);
+          return res.status(200).json({
+            status: 5,
+            message: "An error has occurred."
+          });
+        }
+      )
     }
   }
   else if (random === 'true'){
@@ -170,6 +271,14 @@ app.get("/test", function(req, res) {
   }
   else if (random === 'soft'){
     var details = getTwoRandomSafe();
+    let cookieObj = {
+      start: details[0],
+      current: details[0],
+      end: details[1],
+      steps: 0,
+      history: ''
+    }
+    res.cookie("wikiracer",cookieObj);
     return res.status(200).json({
       status: 0,
       message: "Randomization Successful.",
@@ -182,6 +291,14 @@ app.get("/test", function(req, res) {
   }
   else if (random === 'softchaos'){
     var details = getTwoRandomChaos();
+    let cookieObj = {
+      start: details[0],
+      current: details[0],
+      end: details[1],
+      steps: 0,
+      history: ''
+    }
+    res.cookie("wikiracer",cookieObj);
     return res.status(200).json({
       status: 0,
       message: "Randomization Successful.",
