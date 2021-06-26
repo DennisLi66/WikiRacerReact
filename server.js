@@ -99,7 +99,6 @@ app.get('/', function(req, res) {
     message: 'Welcome to Express API template'
   });
 });
-
 app.get("/check", function(req, res) {
   //look at body and return a cookie, error, or disambiguation page
   res.clearCookie('wikiracer');
@@ -510,13 +509,78 @@ app.get("/check2", function(req, res) {
     })
   }
 })
+app.get("/restart",function(req,res){
+  res.clearCookie("wikiracer");
+  res.clearCookie("pages");
+  return res.status(200).json({
+    status: 0,
+    message: "Cookies Cleared."
+  })
+})
+app.route("wikiracer")
+  .get(function(req,res){
+    //WikiRacer Game
+    res.clearCookie("pages");
+    if (!req.cookies.wikiracer){
+      return res.status(200).json({
+        status: 1,
+        message: "No Informational Cookie."
+      })
+    }
+    else{
+      var current = req.cookies.wikiracer.current;
+      var end = req.cookies.wikiracer.end;
+      if (current.toUpperCase().replace(/ /g,"_") === end.toUpperCase().replace(/ /g,"_")) {
+        return res.status(200).json({
+          status: 200,
+          start: req.cookies.wikiracer.start,
+          end: req.cookies.wikiracer.end,
+          steps: req.cookies.wikiracer.steps,
+          history: req.cookies.wikiracer.history
+        })
+      }
+      else{
+        var url = encodeURI('https://en.wikipedia.org/wiki/' + current);
+        axios(url)
+          .then(response => {
+            const html = response.data;
+            const $ = cheerio.load(html);
+            var links = $('a');
+            const linkSet = new Set();
+            for (let i = 0; i < links.length; i++) {
+              var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
+              if (links[i].attribs && links[i].attribs.title && links[i].attribs.href
+              && links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page'
+              && links[i].attribs.href !== '/wiki/' + current.replace(/ /g,"_") ) {
+                linkSet.add(links[i].attribs.title);
+              }
+            }
+            return res.status(200).json({
+              status: 0,
+              current: current,
+              end: end,
+              links: [...linkSet].join("^"),
+              steps: req.cookies.wikiracer.steps
+            })
+          })
+      }
+    }
+  })
+  .post(function(req,res){
+
+  })
+app.route("2pages")
+  .get(function(req,res){
+
+  })
+  .post(function(req,res){
+
+  })
+
+
 app.get("/test", function(req, res) {
-
 })
 
-app.get("/game", function(req, res) {
-
-})
 
 app.listen(3000, function() {
   console.log("Server Started.")
