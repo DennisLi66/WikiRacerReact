@@ -11,19 +11,19 @@ function App() {
 
 const [code,changeCode] = React.useState(
   <div className='centerBox'>
-    <h1> Welcome to WikiRacer </h1>
-    Description <br></br>
-    Button 2 <br></br>
-    Button 3 <br></br>
+    <h1> Welcome to WikiRacer </h1><br></br>
+    <Button variant="dark" onClick={getDescription}>What is WikiRacing?</Button> <br></br><br></br>
+    <Button variant="dark" onClick={getWikiRacer}>Play WikiRacer</Button> <br></br><br></br>
+    <Button variant="dark" onClick={get2Pages}>Play 2Pages</Button> <br></br>
   </div>
 )
 function getHome(){
   changeCode(
     <div className='centerBox'>
-      <h1> Welcome to WikiRacer </h1>
-      Description <br></br>
-      Button 2 <br></br>
-      Button 3 <br></br>
+      <h1> Welcome to WikiRacer </h1><br></br>
+    <Button variant="dark" onClick={getDescription}>What is WikiRacing?</Button> <br></br><br></br>
+    <Button variant="dark" onClick={getWikiRacer}>Play WikiRacer</Button> <br></br><br></br>
+    <Button variant="dark" onClick={get2Pages}>Play 2Pages</Button> <br></br>
     </div>
   )
 }
@@ -54,6 +54,13 @@ function getDescription(){
     </div>
   )
 }
+function getWikiRacer(){
+  //if this is called should create a new game
+}
+function get2Pages(){
+  // if this is called should create a new game
+}
+
   return (
     <div className="App">
 
@@ -68,8 +75,8 @@ function getDescription(){
         >
           <Nav.Link onClick={getHome}>Home</Nav.Link>
           <Nav.Link onClick={getDescription}>Description</Nav.Link>
-          <Nav.Link href="#action2">WikiRacer</Nav.Link>
-          <Nav.Link href="#action2">2Pages</Nav.Link>
+          <Nav.Link onClick={getWikiRacer}>WikiRacer</Nav.Link>
+          <Nav.Link onClick={get2Pages}>2Pages</Nav.Link>
         </Nav>
 
       </Navbar.Collapse>
