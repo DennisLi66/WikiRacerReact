@@ -11,3 +11,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.centerBox{
+  text-align: center;
+  position: fixed;
+  top: 40%;
+  left: 42%;
+  margin-top: -50px;
+  margin-left: -100px;
+}
