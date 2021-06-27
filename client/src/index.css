@@ -20,3 +20,9 @@ code {
   margin-top: -50px;
   margin-left: -100px;
 }
+
+.centerInfo{
+  text-align: center;
+  padding-left: 10%;
+  padding-right: 10%;
+}
