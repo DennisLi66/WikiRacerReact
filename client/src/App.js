@@ -17,6 +17,13 @@ const [code,changeCode] = React.useState(
     <Button variant="dark" onClick={get2Pages}>Play 2Pages</Button> <br></br>
   </div>
 )
+
+//wikiRacer Connection Functions
+
+//2Pages Connections Functions
+
+
+//get Pages
 function getHome(){
   changeCode(
     <div className='centerBox'>
@@ -55,10 +62,50 @@ function getDescription(){
   )
 }
 function getWikiRacer(){
-  //if this is called should create a new game
+  changeCode(
+    <div className='centerInfo'>
+      <h1> WikiRacer </h1>
+      If you have two Wikipedia articles in mind, you can put their article titles here.
+      <br></br>
+      <form action='/checkit' method="get" id='wikiForm'>
+      <input type='hidden' name='random' id='random' value='false'></input>
+      <label>Starting Wikipedia Article:</label><br></br>
+      <input id='startPoint' name="start"></input><br></br>
+      <label>Ending Wikipedia Article: </label><br></br>
+      <input id='endPoint' name="end"></input><br></br>
+      </form>
+      <br></br>
+      <Button variant="dark" onClick={console.log("Hello")}>Confirm Choices</Button> <br></br>
+      <br></br>
+      <br></br>
+      <Button variant="dark" onClick={console.log("Hello")}>Two Fair Random Curated Articles</Button> <br></br>
+      <br></br><br></br>
+      <Button variant="dark" onClick={console.log("Hello")}>ANY Two Random Curated Articles</Button> <br></br>
+      <br></br><br></br>
+      <Button variant="dark" onClick={console.log("Hello")}>ANY Two Random Wikipedia Articles</Button> <br></br>
+      </div>
+  )
 }
 function get2Pages(){
-  // if this is called should create a new game
+  changeCode(
+    <div className="centerInfo">
+    <h1> 2Pages </h1>
+    If you have two Wikipedia articles in mind, you can put their article titles here.
+    <br></br>
+    <form action='/checkit2' method="get" id='wikiForm'>
+    <input type='hidden' name='random' id='random' value='false'></input>
+    <label>Wikipedia Article Start Point 1:</label><br></br>
+    <input id='startPoint' name="start"></input><br></br>
+    <label>Wikipedia Article Start Point 2: </label><br></br>
+    <input id='endPoint' name="end"></input><br></br>
+    </form><br></br>
+    <Button variant="dark" onClick={console.log("Hello")}>Confirm Choices</Button> <br></br>
+    <br></br><br></br>
+    <Button variant="dark" onClick={console.log("Hello")}> Two Random Curated Articles</Button> <br></br>
+    <br></br><br></br>
+    <Button variant="dark" onClick={console.log("Hello")}> Any Two Random Wikipedia Articles</Button> <br></br>
+    </div>
+  )
 }
 
   return (

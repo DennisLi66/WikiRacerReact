@@ -521,6 +521,7 @@ app.route("wikiracer")
   .get(function(req, res) {
     //WikiRacer Game
     res.clearCookie("pages");
+    res.clearCookie("wikiracer");
     if (!req.cookies.wikiracer) {
       return res.status(200).json({
         status: 1,
@@ -570,6 +571,7 @@ app.route("wikiracer")
 app.route("2pages")
   .get(function(req, res) {
     res.clearCookie("wikiracer");
+        res.clearCookie("pages");
     if (!req.cookies.pages) {
       return res.status(200).json({
         status: 1,
