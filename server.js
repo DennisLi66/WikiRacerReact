@@ -4,8 +4,8 @@ const cookieParser = require('cookie-parser');
 const wiki = require('wikijs').default;
 const axios = require('axios');
 const cheerio = require('cheerio');
+var cors = require("cors");
 //functions
-
 function getTwoRandomSafe() {
   // return array
   var duoList = [];
@@ -45,7 +45,6 @@ function getTwoRandomSafe() {
   duoList.push(end);
   return duoList;
 }
-
 function getTwoRandomChaos() {
   var duoList = [];
   var articles = [
@@ -83,11 +82,14 @@ function getTwoRandomChaos() {
   duoList.push(end);
   return duoList;
 }
-// server
-
+//comparator
+function exact(current,destination){
+  return current.toUpperCase().replace(/ /g,"_") === destination.toUpperCase().replace(/ /g,"_");
+}
+//server
 const app = express();
 app.use(express.static("public"));
-// app.set('view engine', 'ejs');
+app.use(cors());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
@@ -244,15 +246,43 @@ app.get("/check", function(req, res) {
         history: ''
       }
       res.cookie("wikiracer", cookieObj);
-      return res.status(200).json({
-        status: 0,
-        message: "Randomization Successful",
-        start: start,
-        current: start,
-        end: end,
-        steps: 0,
-        history: ''
-      });
+      if (exact(start,end)){
+        return res.status(200).json({
+          status: 999,
+          message: "Randomization Successful",
+          start: start,
+          current: start,
+          end: end,
+          steps: 0,
+          history: ''
+        });
+      }
+      else{
+        var url = encodeURI('https://en.wikipedia.org/wiki/' + start);
+        axios(url)
+          .then(response => {
+            const html = response.data;
+            const $ = cheerio.load(html);
+            var links = $('a');
+            const linkSet = new Set();
+            for (let i = 0; i < links.length; i++) {
+              var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
+              if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
+                links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
+                links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")) {
+                linkSet.add(links[i].attribs.title);
+              }
+            }
+            return res.status(200).json({
+              status: 0,
+              message: "Randomization Successful",
+              current: start,
+              end: end,
+              links: [...linkSet].join("^"),
+              steps: 0
+            })
+          })
+      }
     })
   } else if (random === 'soft') {
     var details = getTwoRandomSafe();
@@ -530,7 +560,7 @@ app.route("wikiracer")
     } else {
       var current = req.cookies.wikiracer.current;
       var end = req.cookies.wikiracer.end;
-      if (current.toUpperCase().replace(/ /g, "_") === end.toUpperCase().replace(/ /g, "_")) {
+      if (exact(current,end)) {
         return res.status(200).json({
           status: 200,
           start: req.cookies.wikiracer.start,
@@ -644,6 +674,6 @@ app.get("/test", function(req, res) {
 })
 
 
-app.listen(3000, function() {
+app.listen(3001, function() {
   console.log("Server Started.")
 });

@@ -18,8 +18,51 @@ const [code,changeCode] = React.useState(
   </div>
 )
 
-//wikiRacer Connection Functions
+//2018 African Swimming Championships – Women's 50 metre backstroke
+//the above produces questionable link at the bottom
 
+
+//wikiRacer Game pages
+function produceWikiRacerGamePage(start,end,current,steps,links){
+  //FIX THIS ALLOW CLICKABLE END VALUE
+  var listToUse = [];
+  for (let i = 0; i < links.length; i++){
+    listToUse.push(<div key={links[i]}><div>{links[i]}</div><br></br></div>)
+  }
+  changeCode(
+    <div>
+
+    <div className='statusBar'>
+        <script src="/javascript/bar.js"></script>
+      <span><b>Current:</b> {current}   </span>
+      <span><b>Destination:</b> {end}   </span>
+      <span><b>Steps Made:</b> {steps} </span>
+      <span><a className="btn btn-dark" href='/restart'> Restart </a></span>
+    </div>
+
+
+    <div className="centerInfo">
+    <br></br>
+    <h1> {current} </h1>
+    <br></br>
+    {listToUse}
+    </div>
+    </div>
+  )
+}
+//wikiRacer Connection Functions
+function chosenTrueRandomWikiRacer(){
+  //FIX THIS: Maybe use dotenv to locate server
+  var serverLocation = "http://localhost:3001";
+  fetch(serverLocation + "/check?random=true",{
+    // mode:'no-cors'
+  })
+    .then(response=>response.json())
+    .then(data => {
+      console.log('Success:', data);
+      produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split('^'));
+    })
+}
 //2Pages Connections Functions
 
 
@@ -82,7 +125,7 @@ function getWikiRacer(){
       <br></br><br></br>
       <Button variant="dark" onClick={console.log("Hello")}>ANY Two Random Curated Articles</Button> <br></br>
       <br></br><br></br>
-      <Button variant="dark" onClick={console.log("Hello")}>ANY Two Random Wikipedia Articles</Button> <br></br>
+      <Button variant="dark" onClick={chosenTrueRandomWikiRacer}>ANY Two Random Wikipedia Articles</Button> <br></br>
       </div>
   )
 }
