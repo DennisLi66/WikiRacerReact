@@ -17,7 +17,8 @@ const [code,changeCode] = React.useState(
     <Button variant="dark" onClick={get2Pages}>Play 2Pages</Button> <br></br>
   </div>
 )
-
+//FIX THIS: Maybe use dotenv to locate server
+var serverLocation = "http://localhost:3001";
 //2018 African Swimming Championships – Women's 50 metre backstroke
 //the above produces questionable link at the bottom
 
@@ -29,18 +30,15 @@ function produceWikiRacerGamePage(start,end,current,steps,links){
   for (let i = 0; i < links.length; i++){
     listToUse.push(<div key={links[i]}><div>{links[i]}</div><br></br></div>)
   }
+  //FIX THIS RESTART BUTTON
   changeCode(
     <div>
-
     <div className='statusBar'>
-        <script src="/javascript/bar.js"></script>
       <span><b>Current:</b> {current}   </span>
       <span><b>Destination:</b> {end}   </span>
       <span><b>Steps Made:</b> {steps} </span>
       <span><a className="btn btn-dark" href='/restart'> Restart </a></span>
     </div>
-
-
     <div className="centerInfo">
     <br></br>
     <h1> {current} </h1>
@@ -48,12 +46,10 @@ function produceWikiRacerGamePage(start,end,current,steps,links){
     {listToUse}
     </div>
     </div>
-  )
+  );
 }
 //wikiRacer Connection Functions
 function chosenTrueRandomWikiRacer(){
-  //FIX THIS: Maybe use dotenv to locate server
-  var serverLocation = "http://localhost:3001";
   fetch(serverLocation + "/check?random=true",{
     // mode:'no-cors'
   })
@@ -63,8 +59,48 @@ function chosenTrueRandomWikiRacer(){
       produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split('^'));
     })
 }
+//2Pages Game Pages
+function produce2PagesGamePage(left,right,steps,lLinks,rLinks){
+  var lListToUse = [];
+  for (let i = 0; i < lLinks.length; i++){
+    lListToUse.push(<div key={lLinks[i]}><div>{lLinks[i]}</div><br></br></div>)
+  }
+  var rListToUse = [];
+  for (let i = 0; i < rLinks.length; i++){
+    rListToUse.push(<div key={rLinks[i]}><div>{rLinks[i]}</div><br></br></div>)
+  }
+  //FIX THIS RESTART BUTTON
+  changeCode(
+    <div>
+    <div className='statusBar'>
+      <span><b>Left:</b> {left}  </span>
+      <span><b>Right:</b> {right}  </span>
+      <span><b>Steps Made:</b> {steps}  </span>
+      <span><a className="btn btn-dark" href='/restart2'> Restart </a></span>
+    </div>
+    <div className="leftLinks half">
+      <h2> {left} </h2>
+      <br></br>
+      {lListToUse}
+    </div>
+    <div className="rightLinks half">
+      <h2> {right} </h2>
+      <br></br>
+      {rListToUse}
+    </div>
+    </div>
+  );
+}
 //2Pages Connections Functions
-
+function chosenTrueRandom2Pages(){
+  fetch(serverLocation + "/check2?random=true",{
+    // mode:'no-cors'
+  }).then(response=>response.json())
+  .then(data => {
+    console.log('Success:', data);
+    produce2PagesGamePage(data.cLeft,data.cRight,data.steps,data.linksLeft.split('^'),data.linksRight.split('^'));
+  })
+}
 
 //get Pages
 function getHome(){
@@ -146,7 +182,7 @@ function get2Pages(){
     <br></br><br></br>
     <Button variant="dark" onClick={console.log("Hello")}> Two Random Curated Articles</Button> <br></br>
     <br></br><br></br>
-    <Button variant="dark" onClick={console.log("Hello")}> Any Two Random Wikipedia Articles</Button> <br></br>
+    <Button variant="dark" onClick={chosenTrueRandom2Pages}> Any Two Random Wikipedia Articles</Button> <br></br>
     </div>
   )
 }

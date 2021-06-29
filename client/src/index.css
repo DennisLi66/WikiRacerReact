@@ -26,3 +26,26 @@ code {
   padding-left: 10%;
   padding-right: 10%;
 }
+
+.leftLinks {
+  left: 0;
+  /* background-color: white;
+  color: black */
+}
+
+/* Control the right side */
+.rightLinks {
+  right: 0;
+  /* background-color: black;
+  color: white */
+}
+
+.half{
+  min-height: 100%;
+    /* max-height: 100%; */
+  width: 50%;
+  position: absolute;
+        float:left;
+  height: auto;
+  text-align: center;
+}

@@ -385,29 +385,74 @@ app.get("/check2", function(req, res) {
     })
   } else if (random === 'true') {
     wiki().random(2).then(results => {
-      var start = results[0];
-      var end = results[1];
+      var cLeft = results[0];
+      var cRight = results[1];
       let cookieObj = {
-        lStart: start,
-        rStart: end,
-        cLeft: start,
-        cRight: end,
+        lStart: cLeft,
+        rStart: cRight,
+        cLeft: cLeft,
+        cRight: cRight,
         steps: 0,
         history: '',
         orientation: ''
       }
       res.cookie("pages", cookieObj);
-      return res.status(200).json({
-        status: 0,
-        message: "Randomization Successful",
-        lStart: start,
-        rStart: end,
-        cLeft: start,
-        cRight: end,
-        steps: 0,
-        history: '',
-        orientation: ''
-      });
+      if (exact(cLeft,cRight)){
+        return res.status(200).json({
+          status: 999,
+          message: "Randomization Successful",
+          start: start,
+          current: start,
+          end: end,
+          steps: 0,
+          history: ''
+        });
+      }
+      else{
+        var url1 = encodeURI('https://en.wikipedia.org/wiki/' + cLeft);
+        var url2 = encodeURI('https://en.wikipedia.org/wiki/' + cRight);
+        axios(url1)
+          .then(response1 => {
+            const html1 = response1.data;
+            const $ = cheerio.load(html1);
+            var links = $('a');
+            const linkSet1 = new Set();
+            for (let i = 0; i < links.length; i++) {
+              var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
+              if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
+                links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
+                links[i].attribs.href !== '/wiki/' + cLeft.replace(/ /g, "_")) {
+                linkSet1.add(links[i].attribs.title);
+              }
+            }
+            axios(url2)
+              .then(response2 => {
+                const html2 = response2.data;
+                const $ = cheerio.load(html2);
+                var links = $('a');
+                const linkSet2 = new Set();
+                for (let i = 0; i < links.length; i++) {
+                  var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
+                  if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
+                    links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
+                    links[i].attribs.href !== '/wiki/' + cRight.replace(/ /g, "_")) {
+                    linkSet2.add(links[i].attribs.title);
+                  }
+                }
+                return res.status(200).json({
+                  status: 0,
+                  message: "Randomization Successful",
+                  cLeft: cLeft,
+                  cRight: cRight,
+                  linksLeft: [...linkSet1].join("^"),
+                  linksRight: [...linkSet2].join("^"),
+                  steps: 0
+                })
+
+
+              })
+          })
+      }
     })
   } else if (random === 'false') {
     var start = req.query.start;
@@ -601,7 +646,7 @@ app.route("wikiracer")
 app.route("2pages")
   .get(function(req, res) {
     res.clearCookie("wikiracer");
-        res.clearCookie("pages");
+    res.clearCookie("pages");
     if (!req.cookies.pages) {
       return res.status(200).json({
         status: 1,
