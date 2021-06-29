@@ -8,7 +8,6 @@ import Button from 'react-bootstrap/Button'
 import './App.css';
 
 function App() {
-
 const [code,changeCode] = React.useState(
   <div className='centerBox'>
     <h1> Welcome to WikiRacer </h1><br></br>
@@ -21,7 +20,6 @@ const [code,changeCode] = React.useState(
 var serverLocation = "http://localhost:3001";
 //2018 African Swimming Championships – Women's 50 metre backstroke
 //the above produces questionable link at the bottom
-
 
 //wikiRacer Game pages
 function produceWikiRacerGamePage(start,end,current,steps,links){
@@ -117,7 +115,15 @@ function chosenTrueRandom2Pages(){
     produce2PagesGamePage(data.cLeft,data.cRight,data.steps,data.linksLeft.split('^'),data.linksRight.split('^'));
   })
 }
-
+function chosenCuratedRandom2Pages(){
+  fetch(serverLocation + "/check2?random=soft",{
+    // mode:'no-cors'
+  }).then(response=>response.json())
+  .then(data => {
+    console.log('Success:', data);
+    produce2PagesGamePage(data.cLeft,data.cRight,data.steps,data.linksLeft.split('^'),data.linksRight.split('^'));
+  })
+}
 //get Pages
 function getHome(){
   changeCode(
@@ -196,7 +202,7 @@ function get2Pages(){
     </form><br></br>
     <Button variant="dark" onClick={console.log("Hello")}>Confirm Choices</Button> <br></br>
     <br></br><br></br>
-    <Button variant="dark" onClick={console.log("Hello")}> Two Random Curated Articles</Button> <br></br>
+    <Button variant="dark" onClick={chosenCuratedRandom2Pages}> Two Random Curated Articles</Button> <br></br>
     <br></br><br></br>
     <Button variant="dark" onClick={chosenTrueRandom2Pages}> Any Two Random Wikipedia Articles</Button> <br></br>
     </div>
