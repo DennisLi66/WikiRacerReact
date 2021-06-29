@@ -59,6 +59,22 @@ function chosenTrueRandomWikiRacer(){
       produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split('^'));
     })
 }
+function chosenChaoticRandomWikiRacer(){
+  fetch(serverLocation + "/check?random=softchaos")
+  .then(response=>response.json())
+  .then(data => {
+    console.log('Success:', data);
+    produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split('^'));
+  })
+}
+function chosenSoftRandomWikiRacer(){
+  fetch(serverLocation + "/check?random=soft")
+  .then(response=>response.json())
+  .then(data => {
+    console.log('Success:', data);
+    produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split('^'));
+  })
+}
 //2Pages Game Pages
 function produce2PagesGamePage(left,right,steps,lLinks,rLinks){
   var lListToUse = [];
@@ -157,9 +173,9 @@ function getWikiRacer(){
       <Button variant="dark" onClick={console.log("Hello")}>Confirm Choices</Button> <br></br>
       <br></br>
       <br></br>
-      <Button variant="dark" onClick={console.log("Hello")}>Two Fair Random Curated Articles</Button> <br></br>
+      <Button variant="dark" onClick={chosenSoftRandomWikiRacer}>Two Fair Random Curated Articles</Button> <br></br>
       <br></br><br></br>
-      <Button variant="dark" onClick={console.log("Hello")}>ANY Two Random Curated Articles</Button> <br></br>
+      <Button variant="dark" onClick={chosenChaoticRandomWikiRacer}>ANY Two Random Curated Articles</Button> <br></br>
       <br></br><br></br>
       <Button variant="dark" onClick={chosenTrueRandomWikiRacer}>ANY Two Random Wikipedia Articles</Button> <br></br>
       </div>
