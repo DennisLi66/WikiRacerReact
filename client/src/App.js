@@ -21,6 +21,216 @@ var serverLocation = "http://localhost:3001";
 //2018 African Swimming Championships – Women's 50 metre backstroke
 //the above produces questionable link at the bottom
 
+//handle forms functions
+function handleWikiRacerInputs(event){
+  event.preventDefault();
+  var start = document.getElementById('startPoint').value;
+  var end = document.getElementById('endPoint').value;
+  if ((!end || end === "") && (!start || start === "")){
+    changeCode(
+      <div className='centerInfo'  >
+        <div className='errorMsg'> You cannot leave the values empty. </div>
+        <h1> WikiRacer </h1>
+        If you have two Wikipedia articles in mind, you can put their article titles here.
+        <br></br>
+        <form onSubmit={handleWikiRacerInputs}>
+        <label>Starting Wikipedia Article:</label><br></br>
+        <input id='startPoint' name="start"></input><br></br>
+        <label>Ending Wikipedia Article: </label><br></br>
+        <input id='endPoint' name="end"></input><br></br>
+        <br></br>
+        <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+        </form>
+        <br></br>
+        <br></br>
+        <Button variant="dark" onClick={chosenSoftRandomWikiRacer}>Two Fair Random Curated Articles</Button> <br></br>
+        <br></br><br></br>
+        <Button variant="dark" onClick={chosenChaoticRandomWikiRacer}>ANY Two Random Curated Articles</Button> <br></br>
+        <br></br><br></br>
+        <Button variant="dark" onClick={chosenTrueRandomWikiRacer}>ANY Two Random Wikipedia Articles</Button> <br></br>
+        </div>
+    );
+  }
+  else if (!end || end === ""){
+    changeCode(
+      <div className='centerInfo'  >
+        <div className='errorMsg'> You need an end destination for your WikiRace. </div>
+        <h1> WikiRacer </h1>
+        If you have two Wikipedia articles in mind, you can put their article titles here.
+        <br></br>
+        <form onSubmit={handleWikiRacerInputs}>
+        <label>Starting Wikipedia Article:</label><br></br>
+        <input id='startPoint' name="start"></input><br></br>
+        <label>Ending Wikipedia Article: </label><br></br>
+        <input id='endPoint' name="end"></input><br></br>
+        <br></br>
+        <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+        </form>
+        <br></br>
+        <br></br>
+        <Button variant="dark" onClick={chosenSoftRandomWikiRacer}>Two Fair Random Curated Articles</Button> <br></br>
+        <br></br><br></br>
+        <Button variant="dark" onClick={chosenChaoticRandomWikiRacer}>ANY Two Random Curated Articles</Button> <br></br>
+        <br></br><br></br>
+        <Button variant="dark" onClick={chosenTrueRandomWikiRacer}>ANY Two Random Wikipedia Articles</Button> <br></br>
+        </div>
+    );
+  }
+  else if (!start || start === ""){
+    changeCode(
+      <div className='centerInfo'  >
+        <div className='errorMsg'> You need a starting position for your WikiRace. </div>
+        <h1> WikiRacer </h1>
+        If you have two Wikipedia articles in mind, you can put their article titles here.
+        <br></br>
+        <form onSubmit={handleWikiRacerInputs}>
+        <label>Starting Wikipedia Article:</label><br></br>
+        <input id='startPoint' name="start"></input><br></br>
+        <label>Ending Wikipedia Article: </label><br></br>
+        <input id='endPoint' name="end"></input><br></br>
+        <br></br>
+        <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+        </form>
+        <br></br>
+        <br></br>
+        <Button variant="dark" onClick={chosenSoftRandomWikiRacer}>Two Fair Random Curated Articles</Button> <br></br>
+        <br></br><br></br>
+        <Button variant="dark" onClick={chosenChaoticRandomWikiRacer}>ANY Two Random Curated Articles</Button> <br></br>
+        <br></br><br></br>
+        <Button variant="dark" onClick={chosenTrueRandomWikiRacer}>ANY Two Random Wikipedia Articles</Button> <br></br>
+        </div>
+    );
+  }
+  else{
+    fetch(serverLocation + "/check?random=false&start=" + start + "&end=" + end)
+    .then(response=>response.json())
+    .then(data => {
+      var selectList = [];
+      var e = []
+      console.log('Success:', data);
+      if (data.status === 0){
+        produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split('^'));
+      }else if (data.status === 5){ //An Error has occured
+        changeCode(
+          <div className='centerInfo'  >
+            <div className='errorMsg'> An unexpected error has occured. Please refresh the page or try again. </div>
+            <h1> WikiRacer </h1>
+            If you have two Wikipedia articles in mind, you can put their article titles here.
+            <br></br>
+            <form onSubmit={handleWikiRacerInputs}>
+            <label>Starting Wikipedia Article:</label><br></br>
+            <input id='startPoint' name="start"></input><br></br>
+            <label>Ending Wikipedia Article: </label><br></br>
+            <input id='endPoint' name="end"></input><br></br>
+            <br></br>
+            <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+            </form>
+            <br></br>
+            <br></br>
+            <Button variant="dark" onClick={chosenSoftRandomWikiRacer}>Two Fair Random Curated Articles</Button> <br></br>
+            <br></br><br></br>
+            <Button variant="dark" onClick={chosenChaoticRandomWikiRacer}>ANY Two Random Curated Articles</Button> <br></br>
+            <br></br><br></br>
+            <Button variant="dark" onClick={chosenTrueRandomWikiRacer}>ANY Two Random Wikipedia Articles</Button> <br></br>
+            </div>
+        )
+      }else if (data.status === 11){ //Ending was ambiguous
+        e = data.eList.split("^");
+        for (let x = 0; x < e.length; x++){
+          selectList.push(<option key={e[x]}>{e[x]}</option>)
+        }
+        changeCode(
+          <div>
+          Your starting point, {data.startTerm}, was not ambiguous, so there is no need to change it.
+          <form onSubmit={handleWikiRacerInputs}>
+            <input id="startPoint" type="hidden" value={data.startTerm}></input>
+            Your ending point, {data.endTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your ending point.
+            <br></br>
+            <select id='endPoint'>
+            {selectList}
+            </select>
+            <br></br>
+            <Button variant="dark" type="submit" >Confirm</Button> <br></br>
+          </form>
+        </div>
+        )
+      }else if (data.status === 12){ //Stating was ambiguous
+        e = data.sList.split("^");
+        for (let x = 0; x < e.length; x++){
+          selectList.push(<option key={e[x]}>{e[x]}</option>)
+        }
+        changeCode(
+          <div>
+          Your ending point, {data.endTerm}, was not ambiguous, so there is no need to change it.
+          <form onSubmit={handleWikiRacerInputs}>
+            <input id="endPoint" type="hidden" value={data.endTerm}></input>
+            Your starting point, {data.startTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your ending point.
+            <br></br>
+            <select id='startPoint'>
+            {selectList}
+            </select>
+            <br></br>
+            <Button variant="dark" type="submit" >Confirm</Button> <br></br>
+          </form>
+        </div>
+        )
+      }else if (data.status === 99){ //Both Ambiguous
+        var sList = [];
+        var eList = [];
+        var ss = data.sList.split("^");
+        var ee = data.eList.split("^");
+        for (let x = 0; x < ss.length; x++){
+          sList.push(<option key={ss[x]}>{ss[x]}</option>);
+        }
+        for (let x = 0; x < ee.length; x++){
+          eList.push(<option key={ee[x]}>{ee[x]}</option>);
+        }
+        changeCode(
+          <form onSubmit={handleWikiRacerInputs}>
+            Your starting point, { data.startTerm }, was ambiguous. You're going to need to be more specific. Here are options based on your starting point.
+            <br></br>
+            <select id='startPoint'>
+              {sList}
+            </select>
+            <br></br>
+            Your ending point, { data.endTerm }, was ambiguous. You're going to need to be more specific. Here are options based on your ending point.
+            <br></br>
+            <select id='endPoint'>
+              {eList}
+            </select>
+            <br></br>
+            <Button variant="dark" type="submit" >Confirm</Button> <br></br>
+          </form>
+        );
+      }
+      else if (data.status === 100){
+        changeCode(
+          <div className='centerInfo' >
+            <div className='errorMsg'> Please choose values that are not the same. </div>
+            <h1> WikiRacer </h1>
+            If you have two Wikipedia articles in mind, you can put their article titles here.
+            <br></br>
+            <form onSubmit={handleWikiRacerInputs}>
+            <label>Starting Wikipedia Article:</label><br></br>
+            <input id='startPoint' name="start"></input><br></br>
+            <label>Ending Wikipedia Article: </label><br></br>
+            <input id='endPoint' name="end"></input><br></br>
+            <br></br>
+            <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+            </form>
+            <br></br>
+            <br></br>
+            <Button variant="dark" onClick={chosenSoftRandomWikiRacer}>Two Fair Random Curated Articles</Button> <br></br>
+            <br></br><br></br>
+            <Button variant="dark" onClick={chosenChaoticRandomWikiRacer}>ANY Two Random Curated Articles</Button> <br></br>
+            <br></br><br></br>
+            <Button variant="dark" onClick={chosenTrueRandomWikiRacer}>ANY Two Random Wikipedia Articles</Button> <br></br>
+            </div>
+        )
+      }
+    })
+  }
+}
 //wikiRacer Game pages
 function produceWikiRacerGamePage(start,end,current,steps,links){
   //FIX THIS ALLOW CLICKABLE END VALUE
@@ -164,19 +374,18 @@ function getDescription(){
 }
 function getWikiRacer(){
   changeCode(
-    <div className='centerInfo'>
+    <div className='centerInfo'  >
       <h1> WikiRacer </h1>
       If you have two Wikipedia articles in mind, you can put their article titles here.
       <br></br>
-      <form action='/checkit' method="get" id='wikiForm'>
-      <input type='hidden' name='random' id='random' value='false'></input>
+      <form onSubmit={handleWikiRacerInputs}>
       <label>Starting Wikipedia Article:</label><br></br>
       <input id='startPoint' name="start"></input><br></br>
       <label>Ending Wikipedia Article: </label><br></br>
       <input id='endPoint' name="end"></input><br></br>
-      </form>
       <br></br>
-      <Button variant="dark" onClick={console.log("Hello")}>Confirm Choices</Button> <br></br>
+      <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+      </form>
       <br></br>
       <br></br>
       <Button variant="dark" onClick={chosenSoftRandomWikiRacer}>Two Fair Random Curated Articles</Button> <br></br>
@@ -194,7 +403,6 @@ function get2Pages(){
     If you have two Wikipedia articles in mind, you can put their article titles here.
     <br></br>
     <form action='/checkit2' method="get" id='wikiForm'>
-    <input type='hidden' name='random' id='random' value='false'></input>
     <label>Wikipedia Article Start Point 1:</label><br></br>
     <input id='startPoint' name="start"></input><br></br>
     <label>Wikipedia Article Start Point 2: </label><br></br>

@@ -49,3 +49,8 @@ code {
   height: auto;
   text-align: center;
 }
+
+.errorMsg{
+  background-color: red;
+  color: white
+}

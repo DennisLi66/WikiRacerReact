@@ -147,7 +147,8 @@ app.get("/check", function(req, res) {
                       endList = links;
                       console.log("Both Start and End Were ambiguous");
                       return res.status(200).json({
-                        banner: 'WikiRacer: Disambiguation',
+                        status: 99,
+                        message: "Both were Ambiguous",
                         startTerm: start,
                         sAmbiguous: true,
                         sList: startList.join('^'),
@@ -204,15 +205,41 @@ app.get("/check", function(req, res) {
                     history: ''
                   }
                   res.cookie("wikiracer", cookieObj);
-                  return res.status(200).json({
-                    status: 0,
-                    message: "Values Established.",
-                    start: start,
-                    current: start,
-                    end: end,
-                    steps: 0,
-                    history: ''
-                  })
+                  if (exact(start,end)){
+                    return res.status(200).json({
+                      status: 100,
+                      message: "Wow. Anticlimatic.",
+                      start: start,
+                      end: end,
+                      steps: 0
+                    })
+                  }
+                  else{
+                  var url = encodeURI('https://en.wikipedia.org/wiki/' + start);
+                  axios(url)
+                    .then(response => {
+                      const html = response.data;
+                      const $ = cheerio.load(html);
+                      var links = $('a');
+                      const linkSet = new Set();
+                      for (let i = 0; i < links.length; i++) {
+                        var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
+                        if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
+                          links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
+                          links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")) {
+                          linkSet.add(links[i].attribs.title);
+                        }
+                      }
+                      return res.status(200).json({
+                        status: 0,
+                        message: "Connection Successful",
+                        current: start,
+                        end: end,
+                        links: [...linkSet].join("^"),
+                        steps: 0
+                      })
+                    })
+                  }
                 }
               }, error => {
                 console.log(error);
@@ -221,9 +248,7 @@ app.get("/check", function(req, res) {
                   message: "An error has occurred."
                 });
               }
-            )
-          }
-        },
+            )}},
         error => {
           console.log(error);
           return res.status(200).json({
@@ -231,8 +256,7 @@ app.get("/check", function(req, res) {
             message: "An error has occurred."
           });
         }
-      )
-    }
+      )}
   } else if (random === 'true') {
     //Access wikijs and produce two random articles
     wiki().random(2).then(results => {
