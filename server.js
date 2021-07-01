@@ -554,13 +554,11 @@ app.get("/check2", function(req, res) {
                       endList = links;
                       console.log("Both 1 and 2 Were ambiguous.");
                       return res.status(200).json({
-                        status: 13,
+                        status: 17,
                         message: "Both starting points were Ambiguous",
                         lTerm: start,
-                        lAmbiguous: true,
                         lList: startList.join('^'),
                         rTerm: end,
-                        rAmbiguous: true,
                         rList: endList.join('^')
                       })
 
@@ -570,7 +568,7 @@ app.get("/check2", function(req, res) {
                     return res.status(200).json({
                       status: 12,
                       message: "Starting point 1 was Ambiguous",
-                      leftTerm: start,
+                      lTerm: start,
                       lAmbiguous: true,
                       lList: startList.join('^'),
                       rTerm: end,
@@ -596,11 +594,9 @@ app.get("/check2", function(req, res) {
                     return res.status(200).json({
                       status: 13,
                       message: "Starting point 2 was Ambiguous",
-                      leftTerm: start,
-                      lAmbiguous: false,
+                      lTerm: start,
                       rTerm: end,
-                      rAmbiguous: true,
-                      rlist: endList.join('^')
+                      rList: endList.join('^')
                     })
                   });
                 } else {
@@ -615,26 +611,63 @@ app.get("/check2", function(req, res) {
                     orientation: ''
                   }
                   res.cookie("pages", cookieObj);
-                  return res.status(200).json({
-                    lStart: start,
-                    rStart: end,
-                    cLeft: start,
-                    cRight: end,
-                    steps: 0,
-                    history: '',
-                    orientation: ''
-                  })
-                }
-              }, error => {
+                  var cLeft = start;
+                  var cRight = end;
+                  if (exact(cLeft,cRight)){
+                    return res.status(200).json({
+                      status: 10000
+                    })
+                  }
+                  else{
+                  var url1 = encodeURI('https://en.wikipedia.org/wiki/' + cLeft);
+                  var url2 = encodeURI('https://en.wikipedia.org/wiki/' + cRight);
+                  axios(url1)
+                    .then(response1 => {
+                      const html1 = response1.data;
+                      const $ = cheerio.load(html1);
+                      var links = $('a');
+                      const linkSet1 = new Set();
+                      for (let i = 0; i < links.length; i++) {
+                        var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
+                        if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
+                          links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
+                          links[i].attribs.href !== '/wiki/' + cLeft.replace(/ /g, "_")) {
+                          linkSet1.add(links[i].attribs.title);
+                        }
+                      }
+                      axios(url2)
+                        .then(response2 => {
+                          const html2 = response2.data;
+                          const $ = cheerio.load(html2);
+                          var links = $('a');
+                          const linkSet2 = new Set();
+                          for (let i = 0; i < links.length; i++) {
+                            var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
+                            if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
+                              links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
+                              links[i].attribs.href !== '/wiki/' + cRight.replace(/ /g, "_")) {
+                              linkSet2.add(links[i].attribs.title);
+                            }
+                          }
+                          return res.status(200).json({
+                            status: 0,
+                            cLeft: cLeft,
+                            cRight: cRight,
+                            linksLeft: [...linkSet1].join("^"),
+                            linksRight: [...linkSet2].join("^"),
+                            steps: 0
+                          })
+                        })
+                    })
+                  }
+                }}, error => {
                 console.log(error);
                 return res.status(200).json({
                   status: 5,
                   message: "An error has occurred."
                 });
               }
-            )
-          }
-        }, error => {
+            )}},error => {
           console.log(error);
           return res.status(200).json({
             status: 5,
@@ -722,6 +755,7 @@ app.route("2pages")
       var cRight = req.cookies.pages.cRight;
       if (exact(cLeft,cRight)) {
         return res.status(200).json({
+          status: 10000,
           lStart: req.cookies.pages.lStart,
           rStart: req.cookies.pages.rStart,
           current: req.cookies.pages.cLeft,
@@ -761,6 +795,7 @@ app.route("2pages")
                   }
                 }
                 return res.status(200).json({
+                  status: 0,
                   cLeft: cLeft,
                   cRight: cRight,
                   linksLeft: [...linkSet1].join("^"),

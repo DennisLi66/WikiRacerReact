@@ -110,7 +110,7 @@ function handleWikiRacerInputs(event){
       console.log('Success:', data);
       if (data.status === 0){
         produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split('^'));
-      }else if (data.status === 5){ //An Error has occured
+      }else if (data.status === 5){ //An Error has occurred
         changeCode(
           <div className='centerInfo'  >
             <div className='errorMsg'> An unexpected error has occured. Please refresh the page or try again. </div>
@@ -226,6 +226,219 @@ function handleWikiRacerInputs(event){
             <br></br><br></br>
             <Button variant="dark" onClick={chosenTrueRandomWikiRacer}>ANY Two Random Wikipedia Articles</Button> <br></br>
             </div>
+        )
+      }
+    })
+  }
+}
+function handle2PagesInputs(event){
+  event.preventDefault();
+  var start = document.getElementById('startPoint').value;
+  var end = document.getElementById('endPoint').value;
+  if ((!end || end === "") && (!start || start === "")){
+    changeCode(
+      <div className="centerInfo">
+      <div className='errorMsg'> You cannot leave the values empty. </div>
+      <h1> 2Pages </h1>
+      If you have two Wikipedia articles in mind, you can put their article titles here.
+      <br></br>
+        <form onSubmit={handle2PagesInputs}>
+      <label>Wikipedia Article Start Point 1:</label><br></br>
+      <input id='startPoint' name="start"></input><br></br>
+      <label>Wikipedia Article Start Point 2: </label><br></br>
+      <input id='endPoint' name="end"></input><br></br>
+        <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br><br></br>
+      </form>
+      <br></br><br></br>
+      <Button variant="dark" onClick={chosenCuratedRandom2Pages}> Two Random Curated Articles</Button> <br></br>
+      <br></br><br></br>
+      <Button variant="dark" onClick={chosenTrueRandom2Pages}> Any Two Random Wikipedia Articles</Button> <br></br>
+      </div>
+    )
+  }
+  else if (!end || end === ""){
+    changeCode(
+      <div className="centerInfo">
+      <div className='errorMsg'> You cannot leave your second starting point empty. </div>
+      <h1> 2Pages </h1>
+      If you have two Wikipedia articles in mind, you can put their article titles here.
+      <br></br>
+        <form onSubmit={handle2PagesInputs}>
+      <label>Wikipedia Article Start Point 1:</label><br></br>
+      <input id='startPoint' name="start"></input><br></br>
+      <label>Wikipedia Article Start Point 2: </label><br></br>
+      <input id='endPoint' name="end"></input><br></br><br></br>
+        <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+      </form>
+      <br></br><br></br>
+      <Button variant="dark" onClick={chosenCuratedRandom2Pages}> Two Random Curated Articles</Button> <br></br>
+      <br></br><br></br>
+      <Button variant="dark" onClick={chosenTrueRandom2Pages}> Any Two Random Wikipedia Articles</Button> <br></br>
+      </div>
+    )
+  }
+  else if (!start || start === ""){
+    changeCode(
+      <div className="centerInfo">
+      <div className='errorMsg'> You cannot leave your first starting point empty. </div>
+      <h1> 2Pages </h1>
+      If you have two Wikipedia articles in mind, you can put their article titles here.
+      <br></br>
+        <form onSubmit={handle2PagesInputs}>
+      <label>Wikipedia Article Start Point 1:</label><br></br>
+      <input id='startPoint' name="start"></input><br></br>
+      <label>Wikipedia Article Start Point 2: </label><br></br>
+      <input id='endPoint' name="end"></input><br></br><br></br>
+      <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+      </form>
+      <br></br><br></br>
+      <Button variant="dark" onClick={chosenCuratedRandom2Pages}> Two Random Curated Articles</Button> <br></br>
+      <br></br><br></br>
+      <Button variant="dark" onClick={chosenTrueRandom2Pages}> Any Two Random Wikipedia Articles</Button> <br></br>
+      </div>
+    )
+  }
+  else{
+    fetch(serverLocation + "/check2?random=false&start=" + start + "&end=" + end)
+    .then(response=>response.json())
+    .then(data => {
+      if (data.status === 100){ //Values were the same
+        changeCode(
+          <div className="centerInfo">
+          <div className='errorMsg'> Please choose values that are not the same. </div>
+          <h1> 2Pages </h1>
+          If you have two Wikipedia articles in mind, you can put their article titles here.
+          <br></br>
+            <form onSubmit={handle2PagesInputs}>
+          <label>Wikipedia Article Start Point 1:</label><br></br>
+          <input id='startPoint' name="start"></input><br></br>
+          <label>Wikipedia Article Start Point 2: </label><br></br>
+          <input id='endPoint' name="end"></input><br></br>
+          </form><br></br>
+            <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+          <br></br><br></br>
+          <Button variant="dark" onClick={chosenCuratedRandom2Pages}> Two Random Curated Articles</Button> <br></br>
+          <br></br><br></br>
+          <Button variant="dark" onClick={chosenTrueRandom2Pages}> Any Two Random Wikipedia Articles</Button> <br></br>
+          </div>
+        )
+      }
+      else if (data.status === 5){///An error has occurred
+        changeCode(
+          <div className="centerInfo">
+            <div className='errorMsg'> An unexpected error has occured. Please refresh the page or try again. </div>
+          <h1> 2Pages </h1>
+          If you have two Wikipedia articles in mind, you can put their article titles here.
+          <br></br>
+            <form onSubmit={handle2PagesInputs}>
+          <label>Wikipedia Article Start Point 1:</label><br></br>
+          <input id='startPoint' name="start"></input><br></br>
+          <label>Wikipedia Article Start Point 2: </label><br></br>
+          <input id='endPoint' name="end"></input><br></br><br></br>
+          <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+          </form>
+          <br></br><br></br>
+          <Button variant="dark" onClick={chosenCuratedRandom2Pages}> Two Random Curated Articles</Button> <br></br>
+          <br></br><br></br>
+          <Button variant="dark" onClick={chosenTrueRandom2Pages}> Any Two Random Wikipedia Articles</Button> <br></br>
+          </div>
+        )
+      }
+      else if (data.status === 13){/// Second starting point ambiguous
+        var eList = [];
+        var ee = data.rList.split("^");
+        for (let x = 0; x < ee.length; x++){
+          eList.push(<option key={ee[x]}>{ee[x]}</option>);
+        }
+        changeCode(
+        <div>
+        Your first starting point, {data.lTerm}, was not ambiguous, so there is no need to change it.
+        <form onSubmit={handle2PagesInputs}>
+         <input type='hidden' id='startPoint' value={data.lTerm}></input>
+          Your second starting point, {data.rTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your ending point.
+          <br></br>
+          <select id='endPoint'>
+            {eList}
+          </select>
+          <br></br>
+          <Button variant="dark" type="submit" >Confirm</Button> <br></br>
+        </form>
+        </div>
+      )
+      }
+      else if (data.status === 12){/// First starting point ambiguous
+        var sList = [];
+        var ss = data.lList.split("^");
+        for (let x = 0; x < ss.length; x++){
+          sList.push(<option key={ss[x]}>{ss[x]}</option>);
+        }
+        changeCode(
+        <div>
+        Your second starting point, {data.rTerm}, was not ambiguous, so there is no need to change it.
+        <form onSubmit={handle2PagesInputs}>
+         <input type='hidden' id='endPoint' value={data.rTerm}></input>
+          Your first starting point, {data.lTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your ending point.
+          <br></br>
+          <select id='startPoint'>
+            {sList}
+          </select>
+          <br></br>
+          <Button variant="dark" type="submit" >Confirm</Button> <br></br>
+        </form>
+        </div>
+      )
+      }
+      else if (data.status === 17){/// Both starting points ambiguous
+        var startList = [];
+        var sss = data.lList.split("^");
+        var endList = [];
+        var eee = data.rList.split("^");
+        for (let x = 0; x < sss.length; x++){
+          startList.push(<option key={sss[x]}>{sss[x]}</option>);
+        }
+        for (let x = 0; x < eee.length; x++){
+          endList.push(<option key={eee[x]}>{eee[x]}</option>);
+        }
+        changeCode(
+          <form onSubmit={handle2PagesInputs}>
+            Your first starting point, {data.lTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your starting point.
+            <br></br>
+            <select name='start' id='startPoint'>
+            {startList}
+            </select>
+            <br></br>
+            Your second starting point, {data.rTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your ending point.
+            <br></br>
+            <select name='end' id='endPoint'>
+            {endList}
+            </select>
+            <br></br>
+            <Button variant="dark" type="submit" >Confirm</Button> <br></br>
+            </form>
+        )
+      }
+      else if (data.status === 0){//All has gone well
+          produce2PagesGamePage(data.cLeft,data.cRight,data.steps,data.linksLeft.split('^'),data.linksRight.split('^'));
+      }
+      else if (data.status === 10000){
+        changeCode(
+          <div className="centerInfo">
+            <div className='errorMsg'> You shouldn't start from the same point. </div>
+          <h1> 2Pages </h1>
+          If you have two Wikipedia articles in mind, you can put their article titles here.
+          <br></br>
+            <form onSubmit={handle2PagesInputs}>
+          <label>Wikipedia Article Start Point 1:</label><br></br>
+          <input id='startPoint' name="start"></input><br></br>
+          <label>Wikipedia Article Start Point 2: </label><br></br>
+          <input id='endPoint' name="end"></input><br></br><br></br>
+          <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+          </form>
+          <br></br><br></br>
+          <Button variant="dark" onClick={chosenCuratedRandom2Pages}> Two Random Curated Articles</Button> <br></br>
+          <br></br><br></br>
+          <Button variant="dark" onClick={chosenTrueRandom2Pages}> Any Two Random Wikipedia Articles</Button> <br></br>
+          </div>
         )
       }
     })
@@ -402,13 +615,13 @@ function get2Pages(){
     <h1> 2Pages </h1>
     If you have two Wikipedia articles in mind, you can put their article titles here.
     <br></br>
-    <form action='/checkit2' method="get" id='wikiForm'>
+      <form onSubmit={handle2PagesInputs}>
     <label>Wikipedia Article Start Point 1:</label><br></br>
     <input id='startPoint' name="start"></input><br></br>
     <label>Wikipedia Article Start Point 2: </label><br></br>
-    <input id='endPoint' name="end"></input><br></br>
-    </form><br></br>
-    <Button variant="dark" onClick={console.log("Hello")}>Confirm Choices</Button> <br></br>
+    <input id='endPoint' name="end"></input><br></br><br></br>
+    <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+    </form>
     <br></br><br></br>
     <Button variant="dark" onClick={chosenCuratedRandom2Pages}> Two Random Curated Articles</Button> <br></br>
     <br></br><br></br>
