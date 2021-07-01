@@ -444,21 +444,31 @@ function handle2PagesInputs(event){
     })
   }
 }
+function handleWikiRacerLinks(value){
+  console.log(value)
+}
+function handle2PagesLinks(pos,value){
+  console.log(value)
+}
 //wikiRacer Game pages
 function produceWikiRacerGamePage(start,end,current,steps,links){
   //FIX THIS ALLOW CLICKABLE END VALUE
   var listToUse = [];
   for (let i = 0; i < links.length; i++){
-    listToUse.push(<div key={links[i]}><div>{links[i]}</div><br></br></div>)
+    listToUse.push(
+      <div key={links[i]}>
+      <div className="pseudolink" onClick={() => handleWikiRacerLinks(links[i])}>
+      {links[i]}
+      </div>
+      <br></br></div>)
   }
-  //FIX THIS RESTART BUTTON
   changeCode(
     <div>
     <div className='statusBar'>
       <span><b>Current:</b> {current}   </span>
       <span><b>Destination:</b> {end}   </span>
       <span><b>Steps Made:</b> {steps} </span>
-      <span><a className="btn btn-dark" href='/restart'> Restart </a></span>
+      <span><Button variant="dark" onClick={getWikiRacer}>Restart</Button></span>
     </div>
     <div className="centerInfo">
     <br></br>
@@ -500,20 +510,19 @@ function chosenSoftRandomWikiRacer(){
 function produce2PagesGamePage(left,right,steps,lLinks,rLinks){
   var lListToUse = [];
   for (let i = 0; i < lLinks.length; i++){
-    lListToUse.push(<div key={lLinks[i]}><div>{lLinks[i]}</div><br></br></div>)
+    lListToUse.push(<div key={lLinks[i]}><div className="pseudolink" onClick={() => handle2PagesLinks(left,lLinks[i])}>{lLinks[i]}</div><br></br></div>)
   }
   var rListToUse = [];
   for (let i = 0; i < rLinks.length; i++){
-    rListToUse.push(<div key={rLinks[i]}><div>{rLinks[i]}</div><br></br></div>)
+    rListToUse.push(<div key={rLinks[i]}><div className="pseudolink" onClick={() => handle2PagesLinks(right,rLinks[i])}>{rLinks[i]}</div><br></br></div>)
   }
-  //FIX THIS RESTART BUTTON
   changeCode(
     <div>
     <div className='statusBar'>
       <span><b>Left:</b> {left}  </span>
       <span><b>Right:</b> {right}  </span>
       <span><b>Steps Made:</b> {steps}  </span>
-      <span><a className="btn btn-dark" href='/restart2'> Restart </a></span>
+      <span><Button variant="dark" onClick={get2Pages}>Restart</Button></span>
     </div>
     <div className="leftLinks half">
       <h2> {left} </h2>

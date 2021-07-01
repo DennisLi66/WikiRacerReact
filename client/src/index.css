@@ -54,3 +54,7 @@ code {
   background-color: red;
   color: white
 }
+
+.pseudolink:hover{
+  color: blue
+}
