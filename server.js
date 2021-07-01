@@ -94,7 +94,7 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 app.use(cookieParser());
-
+app.use(bodyParser.json());
 
 app.get('/', function(req, res) {
   return res.status(200).json({
@@ -197,14 +197,6 @@ app.get("/check", function(req, res) {
                   });
                 } else {
                   console.log("Nobody was ambiguous");
-                  let cookieObj = {
-                    start: start,
-                    current: start,
-                    end: end,
-                    steps: 0,
-                    history: ''
-                  }
-                  res.cookie("wikiracer", cookieObj);
                   if (exact(start,end)){
                     return res.status(200).json({
                       status: 100,
@@ -230,6 +222,15 @@ app.get("/check", function(req, res) {
                           linkSet.add(links[i].attribs.title);
                         }
                       }
+                      let cookieObj = {
+                        start: start,
+                        current: start,
+                        end: end,
+                        steps: 0,
+                        links: [...linkSet].join("^"),
+                        history: ''
+                      }
+                      res.cookie("wikiracer", cookieObj);
                       return res.status(200).json({
                         status: 0,
                         message: "Connection Successful",
@@ -262,14 +263,6 @@ app.get("/check", function(req, res) {
     wiki().random(2).then(results => {
       var start = results[0];
       var end = results[1];
-      let cookieObj = {
-        start: start,
-        current: start,
-        end: end,
-        steps: 0,
-        history: ''
-      }
-      res.cookie("wikiracer", cookieObj);
       if (exact(start,end)){
         return res.status(200).json({
           status: 999,
@@ -297,6 +290,15 @@ app.get("/check", function(req, res) {
                 linkSet.add(links[i].attribs.title);
               }
             }
+            let cookieObj = {
+              start: start,
+              current: start,
+              end: end,
+              steps: 0,
+              links: [...linkSet].join("^"),
+              history: ''
+            }
+            res.cookie("wikiracer", cookieObj);
             return res.status(200).json({
               status: 0,
               message: "Randomization Successful",
@@ -312,14 +314,6 @@ app.get("/check", function(req, res) {
     var details = getTwoRandomSafe();
     var start = details[0];
     var end = details[1];
-    let cookieObj = {
-      start: details[0],
-      current: details[0],
-      end: details[1],
-      steps: 0,
-      history: ''
-    }
-    res.cookie("wikiracer", cookieObj);
     var url = encodeURI('https://en.wikipedia.org/wiki/' + start);
     axios(url)
       .then(response => {
@@ -335,6 +329,15 @@ app.get("/check", function(req, res) {
             linkSet.add(links[i].attribs.title);
           }
         }
+        let cookieObj = {
+          start: details[0],
+          current: details[0],
+          end: details[1],
+          steps: 0,
+          links: [...linkSet].join("^"),
+          history: ''
+        }
+        res.cookie("wikiracer", cookieObj);
         return res.status(200).json({
           status: 0,
           message: "Randomization Successful",
@@ -348,14 +351,6 @@ app.get("/check", function(req, res) {
     var details = getTwoRandomChaos();
     var start = details[0];
     var end = details[1];
-    let cookieObj = {
-      start: details[0],
-      current: details[0],
-      end: details[1],
-      steps: 0,
-      history: ''
-    }
-    res.cookie("wikiracer", cookieObj);
     var url = encodeURI('https://en.wikipedia.org/wiki/' + start);
     axios(url)
       .then(response => {
@@ -371,6 +366,15 @@ app.get("/check", function(req, res) {
             linkSet.add(links[i].attribs.title);
           }
         }
+        let cookieObj = {
+          start: details[0],
+          current: details[0],
+          end: details[1],
+          steps: 0,
+          links: [...linkSet].join("^"),
+          history: ''
+        }
+        res.cookie("wikiracer", cookieObj);
         return res.status(200).json({
           status: 0,
           message: "Randomization Successful",
@@ -397,16 +401,6 @@ app.get("/check2", function(req, res) {
     })
   } else if (random === 'soft') {
     var details = getTwoRandomChaos();
-    let cookieObj = {
-      lStart: details[0],
-      rStart: details[1],
-      cLeft: details[0],
-      cRight: details[1],
-      steps: 0,
-      history: '',
-      orientation: ''
-    }
-    res.cookie("pages", cookieObj);
     var cLeft = details[0];
     var cRight = details[1];
     var url1 = encodeURI('https://en.wikipedia.org/wiki/' + cLeft);
@@ -439,6 +433,18 @@ app.get("/check2", function(req, res) {
                 linkSet2.add(links[i].attribs.title);
               }
             }
+            let cookieObj = {
+              lStart: details[0],
+              rStart: details[1],
+              cLeft: details[0],
+              cRight: details[1],
+              steps: 0,
+              history: '',
+              orientation: '',
+              linksLeft: [...linkSet1].join("^"),
+              linksRight: [...linkSet2].join("^"),
+            }
+            res.cookie("pages", cookieObj);
             return res.status(200).json({
               cLeft: cLeft,
               cRight: cRight,
@@ -452,16 +458,6 @@ app.get("/check2", function(req, res) {
     wiki().random(2).then(results => {
       var cLeft = results[0];
       var cRight = results[1];
-      let cookieObj = {
-        lStart: cLeft,
-        rStart: cRight,
-        cLeft: cLeft,
-        cRight: cRight,
-        steps: 0,
-        history: '',
-        orientation: ''
-      }
-      res.cookie("pages", cookieObj);
       if (exact(cLeft,cRight)){
         return res.status(200).json({
           status: 999,
@@ -504,6 +500,18 @@ app.get("/check2", function(req, res) {
                     linkSet2.add(links[i].attribs.title);
                   }
                 }
+                let cookieObj = {
+                  lStart: cLeft,
+                  rStart: cRight,
+                  cLeft: cLeft,
+                  cRight: cRight,
+                  steps: 0,
+                  history: '',
+                  linksLeft: [...linkSet1].join("^"),
+                  linksRight: [...linkSet2].join("^"),
+                  orientation: ''
+                }
+                res.cookie("pages", cookieObj);
                 return res.status(200).json({
                   status: 0,
                   message: "Randomization Successful",
@@ -601,16 +609,6 @@ app.get("/check2", function(req, res) {
                   });
                 } else {
                   console.log("Nobody was ambiguous");
-                  let cookieObj = {
-                    lStart: start,
-                    rStart: end,
-                    cLeft: start,
-                    cRight: end,
-                    steps: 0,
-                    history: '',
-                    orientation: ''
-                  }
-                  res.cookie("pages", cookieObj);
                   var cLeft = start;
                   var cRight = end;
                   if (exact(cLeft,cRight)){
@@ -649,6 +647,18 @@ app.get("/check2", function(req, res) {
                               linkSet2.add(links[i].attribs.title);
                             }
                           }
+                          let cookieObj = {
+                            lStart: start,
+                            rStart: end,
+                            cLeft: start,
+                            cRight: end,
+                            steps: 0,
+                            history: '',
+                            linksLeft: [...linkSet1].join("^"),
+                            linksRight: [...linkSet2].join("^"),
+                            orientation: ''
+                          }
+                          res.cookie("pages", cookieObj);
                           return res.status(200).json({
                             status: 0,
                             cLeft: cLeft,
@@ -690,7 +700,7 @@ app.get("/restart", function(req, res) {
     message: "Cookies Cleared."
   })
 })
-app.route("wikiracer")
+app.route("/wikiracer")
   .get(function(req, res) {
     //WikiRacer Game
     res.clearCookie("pages");
@@ -739,9 +749,15 @@ app.route("wikiracer")
     }
   })
   .post(function(req, res) {
-
+    //check that value was in the cookie
+    // var link = req.body.link;
+    // console.log(link);
+    console.log(req.body)
+    return res.status(200).json({
+      status: 0
+    })
   })
-app.route("2pages")
+app.route("/2pages")
   .get(function(req, res) {
     res.clearCookie("wikiracer");
     res.clearCookie("pages");

@@ -445,7 +445,20 @@ function handle2PagesInputs(event){
   }
 }
 function handleWikiRacerLinks(value){
-  console.log(value)
+  console.log(value);
+  fetch(serverLocation + "/wikiracer",{
+    method: "POST",
+    headers: {
+        'Accept': 'application/json',
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({'link':value})
+  })
+  .then(response=>response.json())
+  .then(data => {
+    console.log(data)
+  })
+
 }
 function handle2PagesLinks(pos,value){
   console.log(value)
