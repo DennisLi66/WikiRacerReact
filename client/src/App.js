@@ -6,7 +6,7 @@ import Nav from 'react-bootstrap/Nav'
 import Button from 'react-bootstrap/Button'
 // import logo from './logo.svg';
 import './App.css';
-
+// const Cookies = require("react-cookies");
 function App() {
 const [code,changeCode] = React.useState(
   <div className='centerBox'>
@@ -102,7 +102,9 @@ function handleWikiRacerInputs(event){
     );
   }
   else{
-    fetch(serverLocation + "/check?random=false&start=" + start + "&end=" + end)
+    fetch(serverLocation + "/check?random=false&start=" + start + "&end=" + end,{
+        withCredentials: true, credentials:  'include'
+    })
     .then(response=>response.json())
     .then(data => {
       var selectList = [];
@@ -299,7 +301,9 @@ function handle2PagesInputs(event){
     )
   }
   else{
-    fetch(serverLocation + "/check2?random=false&start=" + start + "&end=" + end)
+    fetch(serverLocation + "/check2?random=false&start=" + start + "&end=" + end,{
+        withCredentials: true, credentials:  'include'
+    })
     .then(response=>response.json())
     .then(data => {
       if (data.status === 100){ //Values were the same
@@ -446,13 +450,8 @@ function handle2PagesInputs(event){
 }
 function handleWikiRacerLinks(value){
   console.log(value);
-  fetch(serverLocation + "/wikiracer",{
-    method: "POST",
-    headers: {
-        'Accept': 'application/json',
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({'link':value})
+  fetch(serverLocation + "/wikiracer?link=" + value,{
+    withCredentials: true, credentials: 'include',
   })
   .then(response=>response.json())
   .then(data => {
@@ -495,7 +494,7 @@ function produceWikiRacerGamePage(start,end,current,steps,links){
 //wikiRacer Connection Functions
 function chosenTrueRandomWikiRacer(){
   fetch(serverLocation + "/check?random=true",{
-    // mode:'no-cors'
+    withCredentials: true, credentials:  'include'
   })
     .then(response=>response.json())
     .then(data => {
@@ -504,7 +503,9 @@ function chosenTrueRandomWikiRacer(){
     })
 }
 function chosenChaoticRandomWikiRacer(){
-  fetch(serverLocation + "/check?random=softchaos")
+  fetch(serverLocation + "/check?random=softchaos",{
+      withCredentials: true, credentials:  'include'
+  })
   .then(response=>response.json())
   .then(data => {
     console.log('Success:', data);
@@ -512,7 +513,9 @@ function chosenChaoticRandomWikiRacer(){
   })
 }
 function chosenSoftRandomWikiRacer(){
-  fetch(serverLocation + "/check?random=soft")
+  fetch(serverLocation + "/check?random=soft",{
+      withCredentials: true, credentials:  'include'
+  })
   .then(response=>response.json())
   .then(data => {
     console.log('Success:', data);
@@ -553,7 +556,7 @@ function produce2PagesGamePage(left,right,steps,lLinks,rLinks){
 //2Pages Connections Functions
 function chosenTrueRandom2Pages(){
   fetch(serverLocation + "/check2?random=true",{
-    // mode:'no-cors'
+  withCredentials: true, credentials:  'include'
   }).then(response=>response.json())
   .then(data => {
     console.log('Success:', data);
@@ -562,7 +565,7 @@ function chosenTrueRandom2Pages(){
 }
 function chosenCuratedRandom2Pages(){
   fetch(serverLocation + "/check2?random=soft",{
-    // mode:'no-cors'
+  withCredentials: true, credentials:  'include'
   }).then(response=>response.json())
   .then(data => {
     console.log('Success:', data);
@@ -652,6 +655,29 @@ function get2Pages(){
   )
 }
 
+//Test
+// function button1(){
+//   fetch(serverLocation + "/test",{
+//     method: "GET",
+//     credentials: 'include',
+//     // withCredentials: true
+//   })
+//     .then(response=>response.json())
+//     .then(data => {
+//       console.log(data);
+//       console.log(data['x-access-token'])
+//     })
+// }
+// function button2(){
+//   fetch(serverLocation + "/test2",{
+//   withCredentials: true, credentials: 'include'
+//   })
+//     .then(response=>response.json())
+//     .then(data => {
+//       console.log('Success:', data);
+//     })
+// }
+
   return (
     <div className="App">
 
@@ -672,9 +698,12 @@ function get2Pages(){
 
       </Navbar.Collapse>
     </Navbar>
-
       {code}
     </div>
+    // <div>
+    //   <Button variant="dark" onClick={button1}>Button 1</Button> <br></br><br></br>
+    //   <Button variant="dark" onClick={button2}>Button 2</Button> <br></br><br></br>
+    // </div>
   );
 }
 
