@@ -112,8 +112,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 
 app.get("/check", function(req, res) {
-  //look at body and return a cookie, error, or disambiguation page
-  console.log(req.cookies);
+  //determine that values exist
   var random = req.query.random;
   if (!random) {
     return res.status(200).json({
@@ -232,14 +231,6 @@ app.get("/check", function(req, res) {
                           linkSet.add(links[i].attribs.title);
                         }
                       }
-                      let cookieObj = {
-                        start: start,
-                        current: start,
-                        end: end,
-                        steps: 0,
-                        // links: [...linkSet].join("^"),
-                        history: ''
-                      }
                       return res.status(200).json({
                         status: 0,
                         message: "Connection Successful",
@@ -299,21 +290,12 @@ app.get("/check", function(req, res) {
                 linkSet.add(links[i].attribs.title);
               }
             }
-            let cookieObj = {
-              start: start,
-              current: start,
-              end: end,
-              steps: 0,
-              // links: [...linkSet].join("^"),
-              history: ''
-            }
             return res.status(200).json({
               status: 0,
               message: "Randomization Successful",
               current: start,
               end: end,
               links: [...linkSet].join("^"),
-              steps: 0
             })
           })
       }
@@ -613,17 +595,17 @@ app.get("/check2", function(req, res) {
                               linkSet2.add(links[i].attribs.title);
                             }
                           }
-                          let cookieObj = {
-                            lStart: start,
-                            rStart: end,
-                            cLeft: start,
-                            cRight: end,
-                            steps: 0,
-                            history: '',
-                            linksLeft: [...linkSet1].join("^"),
-                            linksRight: [...linkSet2].join("^"),
-                            orientation: ''
-                          }
+                          // let cookieObj = {
+                          //   lStart: start,
+                          //   rStart: end,
+                          //   cLeft: start,
+                          //   cRight: end,
+                          //   steps: 0,
+                          //   history: '',
+                          //   linksLeft: [...linkSet1].join("^"),
+                          //   linksRight: [...linkSet2].join("^"),
+                          //   orientation: ''
+                          // }
                           return res.status(200).json({
                             status: 0,
                             cLeft: cLeft,
@@ -657,15 +639,43 @@ app.get("/check2", function(req, res) {
     })
   }
 })
-app.get("/connection",function(req,res){
+app.get("/getLinks",function(req,res){
   //Check that it is possible to reach current from previous, then return links
-  console.log(req.query.previous);
-  console.log(req.query.link);
-
-
-  return res.status(200).json({
-    message: "Message Received."
-  })
+  //no need to check if actually exists
+  console.log(req.query.link,req.query.end);
+  if (exact(req.query.link,req.query.end)){
+    return res.status(200).json({
+      status: 1000,
+      message: "Victory!"
+    })
+  }
+  else{
+    var url = encodeURI('https://en.wikipedia.org/wiki/' + req.query.link);
+    axios(url)
+      .then(response => {
+        const html = response.data;
+        const $ = cheerio.load(html);
+        var links = $('a');
+        const linkSet = new Set();
+        for (let i = 0; i < links.length; i++) {
+          var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
+          if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
+            links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
+            links[i].attribs.href !== '/wiki/' + req.query.link.replace(/ /g, "_")) {
+            linkSet.add(links[i].attribs.title);
+          }
+        }
+        return res.status(200).json({
+          status: 0,
+          current: req.query.link,
+          message: "Links Found",
+          links: [...linkSet].join("^"),
+        })
+      })
+    // return res.status(200).json({
+    //   message: "Message Received."
+    // })
+}
 })
 
 

@@ -7,7 +7,13 @@ import Button from 'react-bootstrap/Button'
 // import logo from './logo.svg';
 import './App.css';
 // const Cookies = require("react-cookies");
+
+//FIX THIS REMEMBER TO HIDE BAR
+
 function App() {
+
+var destination = "";
+
 const [code,changeCode] = React.useState(
   <div className='centerBox'>
     <h1> Welcome to WikiRacer </h1><br></br>
@@ -17,8 +23,10 @@ const [code,changeCode] = React.useState(
   </div>
 )
 const [details,changeDetails] = React.useState({
+  statusHidden: true,
   start: "",
   end: "",
+  current: "",
   steps: 0,
   history: ""
 })
@@ -117,7 +125,16 @@ function handleWikiRacerInputs(event){
       var e = []
       console.log('Success:', data);
       if (data.status === 0){
-        produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split('^'));
+        changeDetails({
+          statusHidden: false,
+          start: start,
+          end: end,
+          current: start,
+          steps: 0,
+          history: start
+        })
+              destination = data.end;
+        produceWikiRacerGamePage(start,data.links.split('^'))
       }else if (data.status === 5){ //An Error has occurred
         changeCode(
           <div className='centerInfo'  >
@@ -454,11 +471,9 @@ function handle2PagesInputs(event){
     })
   }
 }
-function handleWikiRacerLinks(previous,value){
+function handleWikiRacerLinks(value){
   console.log(value);
-  fetch(serverLocation + "/connection?link=" + value + "&previous=" + previous,{
-            withCredentials: true, credentials:  'include'
-  })
+  fetch(serverLocation + "/getLinks?link=" + value + "&end=" + destination)
   .then(response=>response.json())
   .then(data => {
     console.log(data);
@@ -523,7 +538,14 @@ function handleWikiRacerLinks(previous,value){
         </div>
       )
     }else if (data.status === 0){//Normal
-      produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split("^"));
+      changeDetails( prev => {
+        return{
+          ...prev,
+          steps: prev.steps + 1,
+          history: prev.history + '^' + data.current
+        }
+      })
+      produceWikiRacerGamePage(data.current,data.links.split("^"));
     }
   })
 
@@ -532,25 +554,19 @@ function handle2PagesLinks(pos,value){
   console.log(value)
 }
 //wikiRacer Game pages
-function produceWikiRacerGamePage(start,end,current,steps,links){
+function produceWikiRacerGamePage(current,links){
   //FIX THIS ALLOW CLICKABLE END VALUE
   var listToUse = [];
   for (let i = 0; i < links.length; i++){
     listToUse.push(
       <div key={links[i]}>
-      <div className="pseudolink" onClick={() => handleWikiRacerLinks(current,links[i])}>
+      <div className="pseudolink" onClick={() => handleWikiRacerLinks(links[i])}>
       {links[i]}
       </div>
       <br></br></div>)
   }
   changeCode(
     <div>
-    <div className='statusBar'>
-      <span><b>Current:</b> {current}   </span>
-      <span><b>Destination:</b> {end}   </span>
-      <span><b>Steps Made:</b> {steps} </span>
-      <span><Button variant="dark" onClick={getWikiRacer}>Restart</Button></span>
-    </div>
     <div className="centerInfo">
     <br></br>
     <h1> {current} </h1>
@@ -568,7 +584,16 @@ function chosenTrueRandomWikiRacer(){
     .then(response=>response.json())
     .then(data => {
       console.log('Success:', data);
-      produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split('^'));
+      changeDetails({
+        statusHidden: false,
+          start: data.current,
+          current: data.current,
+          end: data.end,
+          steps: 0,
+          history: data.start
+      })
+      destination = data.end;
+      produceWikiRacerGamePage(data.current,data.links.split('^'));
     })
 }
 function chosenChaoticRandomWikiRacer(){
@@ -578,7 +603,16 @@ function chosenChaoticRandomWikiRacer(){
   .then(response=>response.json())
   .then(data => {
     console.log('Success:', data);
-    produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split('^'));
+    changeDetails({
+              statusHidden: false,
+        start: data.start,
+                  current: data.current,
+        end: data.end,
+        steps: 0,
+        history: data.start
+    })
+      destination = data.end;
+    produceWikiRacerGamePage(data.current,data.links.split('^'));
   })
 }
 function chosenSoftRandomWikiRacer(){
@@ -588,7 +622,16 @@ function chosenSoftRandomWikiRacer(){
   .then(response=>response.json())
   .then(data => {
     console.log('Success:', data);
-    produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split('^'));
+    changeDetails({
+        statusHidden: false,
+        start: data.start,
+        current: data.current,
+        end: data.end,
+        steps: 0,
+        history: data.start
+    })
+      destination = data.end;
+    produceWikiRacerGamePage(data.current,data.links.split('^'));
   })
 }
 //2Pages Game Pages
@@ -749,7 +792,6 @@ function get2Pages(){
 
   return (
     <div className="App">
-
     <Navbar bg="light" expand="lg">
       <Navbar.Brand onClick={getHome}>WikiRacer</Navbar.Brand>
       <Navbar.Toggle aria-controls="navbarScroll" />
@@ -767,6 +809,12 @@ function get2Pages(){
 
       </Navbar.Collapse>
     </Navbar>
+    <div className='statusBar' hidden={details.statusHidden}>
+      <span><b>Current:</b> {details.current}   </span>
+      <span><b>Destination:</b> {details.end}   </span>
+      <span><b>Steps Made:</b> {details.steps} </span>
+      <span><Button variant="dark" onClick={getWikiRacer}>Restart</Button></span>
+    </div>
       {code}
     </div>
     // <div>
