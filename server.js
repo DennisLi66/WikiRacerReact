@@ -111,14 +111,9 @@ next()
 app.use(cookieParser());
 app.use(bodyParser.json());
 
-app.get('/', function(req, res) {
-  return res.status(200).json({
-    message: 'Welcome to Express API template'
-  });
-});
 app.get("/check", function(req, res) {
   //look at body and return a cookie, error, or disambiguation page
-  res.clearCookie('wikiracer');
+  console.log(req.cookies);
   var random = req.query.random;
   if (!random) {
     return res.status(200).json({
@@ -242,10 +237,9 @@ app.get("/check", function(req, res) {
                         current: start,
                         end: end,
                         steps: 0,
-                        links: [...linkSet].join("^"),
+                        // links: [...linkSet].join("^"),
                         history: ''
                       }
-                      res.cookie("wikiracer", cookieObj);
                       return res.status(200).json({
                         status: 0,
                         message: "Connection Successful",
@@ -310,10 +304,9 @@ app.get("/check", function(req, res) {
               current: start,
               end: end,
               steps: 0,
-              links: [...linkSet].join("^"),
+              // links: [...linkSet].join("^"),
               history: ''
             }
-            res.cookie("wikiracer", cookieObj);
             return res.status(200).json({
               status: 0,
               message: "Randomization Successful",
@@ -344,15 +337,6 @@ app.get("/check", function(req, res) {
             linkSet.add(links[i].attribs.title);
           }
         }
-        let cookieObj = {
-          start: details[0],
-          current: details[0],
-          end: details[1],
-          steps: 0,
-          links: [...linkSet].join("^"),
-          history: ''
-        }
-        res.cookie("wikiracer", cookieObj);
         return res.status(200).json({
           status: 0,
           message: "Randomization Successful",
@@ -381,15 +365,6 @@ app.get("/check", function(req, res) {
             linkSet.add(links[i].attribs.title);
           }
         }
-        let cookieObj = {
-          start: details[0],
-          current: details[0],
-          end: details[1],
-          steps: 0,
-          links: [...linkSet].join("^"),
-          history: ''
-        }
-        res.cookie("wikiracer", cookieObj);
         return res.status(200).json({
           status: 0,
           message: "Randomization Successful",
@@ -407,7 +382,7 @@ app.get("/check", function(req, res) {
   }
 })
 app.get("/check2", function(req, res) {
-  res.clearCookie('pages');
+  // res.clearCookie('pages');
   var random = req.query.random;
   if (!random) {
     return res.status(200).json({
@@ -448,18 +423,6 @@ app.get("/check2", function(req, res) {
                 linkSet2.add(links[i].attribs.title);
               }
             }
-            let cookieObj = {
-              lStart: details[0],
-              rStart: details[1],
-              cLeft: details[0],
-              cRight: details[1],
-              steps: 0,
-              history: '',
-              orientation: '',
-              linksLeft: [...linkSet1].join("^"),
-              linksRight: [...linkSet2].join("^"),
-            }
-            res.cookie("pages", cookieObj);
             return res.status(200).json({
               cLeft: cLeft,
               cRight: cRight,
@@ -515,18 +478,6 @@ app.get("/check2", function(req, res) {
                     linkSet2.add(links[i].attribs.title);
                   }
                 }
-                let cookieObj = {
-                  lStart: cLeft,
-                  rStart: cRight,
-                  cLeft: cLeft,
-                  cRight: cRight,
-                  steps: 0,
-                  history: '',
-                  linksLeft: [...linkSet1].join("^"),
-                  linksRight: [...linkSet2].join("^"),
-                  orientation: ''
-                }
-                res.cookie("pages", cookieObj);
                 return res.status(200).json({
                   status: 0,
                   message: "Randomization Successful",
@@ -673,7 +624,6 @@ app.get("/check2", function(req, res) {
                             linksRight: [...linkSet2].join("^"),
                             orientation: ''
                           }
-                          res.cookie("pages", cookieObj);
                           return res.status(200).json({
                             status: 0,
                             cLeft: cLeft,
@@ -707,176 +657,15 @@ app.get("/check2", function(req, res) {
     })
   }
 })
-app.get("/restart", function(req, res) {
-  res.clearCookie("wikiracer");
-  res.clearCookie("pages");
+app.get("/connection",function(req,res){
+  //Check that it is possible to reach current from previous, then return links
+  console.log(req.query.previous);
+  console.log(req.query.link);
+
+
   return res.status(200).json({
-    status: 0,
-    message: "Cookies Cleared."
+    message: "Message Received."
   })
-})
-app.route("/wikiracer")
-  .get(function(req, res) {
-    var link = req.query.link;
-    console.log(link);
-    console.log(req.cookies)
-    //check that value was in the cookie
-    if (!req.cookies.wikiracer){
-      console.log("No Cookies.");
-      return res.status(200).json({
-        status: -1
-      })
-    }
-    else if (!req.cookies.wikiracer.links){
-      console.log("No Access.");
-      return res.status(200).json({
-        status: -1
-      })
-    }
-    var links = req.cookies.links.split("^");
-    if (!links.includes(link)){
-      return res.status(200).json({
-        status: -2,
-        message: "Link Not Found"
-      })
-    }else{
-      if (exact(link,req.cookies.wikiracer.end)){
-        return res.status(200).json({
-          message: 1000,
-          status: "Victory!",
-          start: req.cookies.wikiracer.start,
-          end: link,
-          steps: req.cookies.wikiracer.steps + 1,
-          history: req.cookies.history + "^" + link
-        })
-      }
-      //update cookie and send new links
-      var url = encodeURI('https://en.wikipedia.org/wiki/' + link);
-      axios(url)
-        .then(response => {
-          const html = response.data;
-          const $ = cheerio.load(html);
-          var links = $('a');
-          const linkSet = new Set();
-          for (let i = 0; i < links.length; i++) {
-            var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
-            if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
-              links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
-              links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")) {
-              linkSet.add(links[i].attribs.title);
-            }
-          }
-          let cookieObj = {
-            start: req.cookies.wikiracer.start,
-            current: link,
-            end: req.cookies.wikiracer.end,
-            steps: req.cookies.wikiracer.steps + 1,
-            links: [...linkSet].join("^"),
-            history: req.cookies.wikiracer.history + "^" + link
-          }
-          res.cookie("wikiracer", cookieObj);
-          return res.status(200).json({
-            status: 0,
-            message: "Connection Successful",
-            current: link,
-            end: req.cookies.wikiracer.end,
-            links: [...linkSet].join("^"),
-            steps: req.cookies.wikiracer.steps + 1
-          })
-        })
-    }
-  })
-app.route("/2pages")
-  .get(function(req, res) {
-    res.clearCookie("wikiracer");
-    res.clearCookie("pages");
-    if (!req.cookies.pages) {
-      return res.status(200).json({
-        status: 1,
-        message: "No Informational Cookie."
-      })
-    } else {
-      var cLeft = req.cookies.pages.cLeft;
-      var cRight = req.cookies.pages.cRight;
-      if (exact(cLeft,cRight)) {
-        return res.status(200).json({
-          status: 10000,
-          lStart: req.cookies.pages.lStart,
-          rStart: req.cookies.pages.rStart,
-          current: req.cookies.pages.cLeft,
-          steps: req.cookies.pages.steps,
-          history: req.cookies.pages.history,
-          orientation: req.cookies.pages.orientation
-        })
-      } else {
-        var url1 = encodeURI('https://en.wikipedia.org/wiki/' + cLeft);
-        var url2 = encodeURI('https://en.wikipedia.org/wiki/' + cRight);
-        axios(url1)
-          .then(response1 => {
-            const html1 = response1.data;
-            const $ = cheerio.load(html1);
-            var links = $('a');
-            const linkSet1 = new Set();
-            for (let i = 0; i < links.length; i++) {
-              var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
-              if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
-                links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
-                links[i].attribs.href !== '/wiki/' + cLeft.replace(/ /g, "_")) {
-                linkSet1.add(links[i].attribs.title);
-              }
-            }
-            axios(url2)
-              .then(response2 => {
-                const html2 = response2.data;
-                const $ = cheerio.load(html2);
-                var links = $('a');
-                const linkSet2 = new Set();
-                for (let i = 0; i < links.length; i++) {
-                  var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
-                  if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
-                    links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
-                    links[i].attribs.href !== '/wiki/' + cRight.replace(/ /g, "_")) {
-                    linkSet2.add(links[i].attribs.title);
-                  }
-                }
-                return res.status(200).json({
-                  status: 0,
-                  cLeft: cLeft,
-                  cRight: cRight,
-                  linksLeft: [...linkSet1].join("^"),
-                  linksRight: [...linkSet2].join("^"),
-                  steps: req.cookies.pages.steps
-                })
-              })
-          })
-      }
-    }
-  })
-  .post(function(req, res) {
-
-  })
-
-
-app.get("/test", function(req, res) {
-  var cook = {
-    message: "Hello!"
-  };
-  res.cookie("hello",cook);
-  return res.status(200).json({
-    message: "Hello World."
-  })
-})
-
-app.get("/test2", function(req,res){
-  if (!req.cookies.hello){
-    return res.status(200).json({
-      message: "Regret."
-    })
-  }else{
-    return res.status(200).json({
-      message: "Got Cookies."
-    })
-  }
 })
 
 

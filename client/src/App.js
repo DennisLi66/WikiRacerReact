@@ -16,6 +16,12 @@ const [code,changeCode] = React.useState(
     <Button variant="dark" onClick={get2Pages}>Play 2Pages</Button> <br></br>
   </div>
 )
+const [details,changeDetails] = React.useState({
+  start: "",
+  end: "",
+  steps: 0,
+  history: ""
+})
 //FIX THIS: Maybe use dotenv to locate server
 var serverLocation = "http://localhost:3001";
 //2018 African Swimming Championships – Women's 50 metre backstroke
@@ -448,14 +454,77 @@ function handle2PagesInputs(event){
     })
   }
 }
-function handleWikiRacerLinks(value){
+function handleWikiRacerLinks(previous,value){
   console.log(value);
-  fetch(serverLocation + "/wikiracer?link=" + value,{
-    withCredentials: true, credentials: 'include',
+  fetch(serverLocation + "/connection?link=" + value + "&previous=" + previous,{
+            withCredentials: true, credentials:  'include'
   })
   .then(response=>response.json())
   .then(data => {
-    console.log(data)
+    console.log(data);
+    if (data.status === -1){
+      changeCode(
+          <div className='centerInfo'  >
+          <div className='errorMsg'> {data.message} </div>
+          <h1> WikiRacer </h1>
+          If you have two Wikipedia articles in mind, you can put their article titles here.
+          <br></br>
+          <form onSubmit={handleWikiRacerInputs}>
+          <label>Starting Wikipedia Article:</label><br></br>
+          <input id='startPoint' name="start"></input><br></br>
+          <label>Ending Wikipedia Article: </label><br></br>
+          <input id='endPoint' name="end"></input><br></br>
+          <br></br>
+          <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+          </form>
+          <br></br>
+          <br></br>
+          <Button variant="dark" onClick={chosenSoftRandomWikiRacer}>Two Fair Random Curated Articles</Button> <br></br>
+          <br></br><br></br>
+          <Button variant="dark" onClick={chosenChaoticRandomWikiRacer}>ANY Two Random Curated Articles</Button> <br></br>
+          <br></br><br></br>
+          <Button variant="dark" onClick={chosenTrueRandomWikiRacer}>ANY Two Random Wikipedia Articles</Button> <br></br>
+          </div>
+      )
+    }else if (data.status === 1000){//Victory
+      var historyList = [];
+      var history = data.history.split("^")
+      for (let i = 0; i < history.length; i++){
+        historyList.push(
+            <tr key={i + 1}>
+              <td> {i + 1} </td>
+              <td> {history[i] + 1} </td>
+            </tr>
+        )
+      }
+      changeCode(
+        <div class='centerInfo'>
+        <h1> Congratulations! </h1>
+        You reached {data.end} from {data.start} in {data.steps} steps.
+        <br></br><br></br>
+          <a class="btn btn-dark" href='/restart'> New Game </a>
+        <br></br><br></br>
+          <h2> History </h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope='col'> Step Number </th>
+                <th scope='col'> Wikipedia Article Title</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td> 0 </td>
+                <td> {data.start} </td>
+              </tr>
+              {historyList}
+            </tbody>
+          </table>
+        </div>
+      )
+    }else if (data.status === 0){//Normal
+      produceWikiRacerGamePage(data.start,data.end,data.current,data.steps,data.links.split("^"));
+    }
   })
 
 }
@@ -469,7 +538,7 @@ function produceWikiRacerGamePage(start,end,current,steps,links){
   for (let i = 0; i < links.length; i++){
     listToUse.push(
       <div key={links[i]}>
-      <div className="pseudolink" onClick={() => handleWikiRacerLinks(links[i])}>
+      <div className="pseudolink" onClick={() => handleWikiRacerLinks(current,links[i])}>
       {links[i]}
       </div>
       <br></br></div>)
