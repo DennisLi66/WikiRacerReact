@@ -12,7 +12,10 @@ import './App.css';
 
 function App() {
 
+var beginning = "";
 var destination = "";
+var steps = 0;
+var history = "";
 
 const [code,changeCode] = React.useState(
   <div className='centerBox'>
@@ -134,6 +137,8 @@ function handleWikiRacerInputs(event){
           history: start
         })
         destination = data.endTitle;
+        beginning = data.startTitle;
+        history = data.startTitle;
         produceWikiRacerGamePage(data.startTitle,data.links.split('^'))
       }else if (data.status === 5){ //An Error has occurred
         changeCode(
@@ -503,19 +508,21 @@ function handleWikiRacerLinks(value){
       )
     }else if (data.status === 1000){//Victory
       var historyList = [];
-      var history = details.history.split("^")
-      for (let i = 0; i < history.length; i++){
+      steps++;
+      history+= '^' + value;
+      for (let i = 0; i < history.split('^').length; i++){
         historyList.push(
             <tr key={i + 1}>
               <td> {i + 1} </td>
-              <td> {history[i] + 1} </td>
+              <td> {history.split('^')[i]} </td>
             </tr>
         )
       }
+      var grammar = (steps === 1 ? 'step' : 'steps')
       changeCode(
         <div class='centerInfo'>
         <h1> Congratulations! </h1>
-        You reached {data.end} from {data.start} in {data.steps} steps.
+        You reached {destination} from {beginning} in {steps} {grammar}.
         <br></br><br></br>
           <a class="btn btn-dark" href='/restart'> New Game </a>
         <br></br><br></br>
@@ -528,10 +535,6 @@ function handleWikiRacerLinks(value){
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td> 0 </td>
-                <td> {data.start} </td>
-              </tr>
               {historyList}
             </tbody>
           </table>
@@ -545,6 +548,8 @@ function handleWikiRacerLinks(value){
           history: prev.history + '^' + data.current
         }
       })
+      steps++;
+      history += '^' + value;
       produceWikiRacerGamePage(data.current,data.links.split("^"));
     }
   })
