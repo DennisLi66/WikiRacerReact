@@ -86,6 +86,18 @@ function getTwoRandomChaos() {
 function exact(current,destination){
   return current.toUpperCase().replace(/ /g,"_") === destination.toUpperCase().replace(/ /g,"_");
 }
+function getTitle(term){
+  var url = encodeURI('https://en.wikipedia.org/wiki/' + term);
+  axios(url)
+    .then(response => {
+      const html = response.data;
+      const $ = cheerio.load(html);
+      var links = $('a');
+      var title = $('h1').contents().first().text();
+      console.log(title)
+      return title;
+    })
+}
 //server
 const app = express();
 app.use(express.static("public"));
@@ -222,6 +234,8 @@ app.get("/check", function(req, res) {
                       const html = response.data;
                       const $ = cheerio.load(html);
                       var links = $('a');
+                      var beginTitle = $('h1').contents().first().text();
+                      console.log(beginTitle);
                       const linkSet = new Set();
                       for (let i = 0; i < links.length; i++) {
                         var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
@@ -231,14 +245,33 @@ app.get("/check", function(req, res) {
                           linkSet.add(links[i].attribs.title);
                         }
                       }
-                      return res.status(200).json({
-                        status: 0,
-                        message: "Connection Successful",
-                        current: start,
-                        end: end,
-                        links: [...linkSet].join("^"),
-                        steps: 0
-                      })
+                      //Now Axios for the true title of the second page
+                      var url = encodeURI('https://en.wikipedia.org/wiki/' + end);
+                      axios(url)
+                        .then(response => {
+                          const html = response.data;
+                          const $ = cheerio.load(html);
+                          var links = $('a');
+                          var title = $('h1').contents().first().text();
+                          console.log(title)
+                          if (exact(title,beginTitle)){
+                            return res.status(200).json({
+                              status: -1,
+                              message: "They are the same."
+                            })
+                          }else{
+                          return res.status(200).json({
+                            status: 0,
+                            message: "Connection Successful",
+                            startTitle: beginTitle,
+                            endTitle: title,
+                            current: start,
+                            end: end,
+                            links: [...linkSet].join("^"),
+                            steps: 0
+                          })
+                        }
+                        })
                     })
                   }
                 }
@@ -677,7 +710,6 @@ app.get("/getLinks",function(req,res){
     // })
 }
 })
-
 
 app.listen(3001, function() {
   console.log("Server Started.")

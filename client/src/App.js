@@ -127,14 +127,14 @@ function handleWikiRacerInputs(event){
       if (data.status === 0){
         changeDetails({
           statusHidden: false,
-          start: start,
-          end: end,
-          current: start,
+          start: data.startTitle,
+          end: data.endTitle,
+          current: data.startTitle,
           steps: 0,
           history: start
         })
-              destination = data.end;
-        produceWikiRacerGamePage(start,data.links.split('^'))
+        destination = data.endTitle;
+        produceWikiRacerGamePage(data.startTitle,data.links.split('^'))
       }else if (data.status === 5){ //An Error has occurred
         changeCode(
           <div className='centerInfo'  >
@@ -503,7 +503,7 @@ function handleWikiRacerLinks(value){
       )
     }else if (data.status === 1000){//Victory
       var historyList = [];
-      var history = data.history.split("^")
+      var history = details.history.split("^")
       for (let i = 0; i < history.length; i++){
         historyList.push(
             <tr key={i + 1}>
