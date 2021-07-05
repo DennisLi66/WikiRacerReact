@@ -37,7 +37,14 @@ const [details,changeDetails] = React.useState({
 var serverLocation = "http://localhost:3001";
 //2018 African Swimming Championships – Women's 50 metre backstroke
 //the above produces questionable link at the bottom
-
+function hideDetails(){
+  changeDetails( prev => {
+    return {
+    ...prev,
+    statusHidden: true
+  }
+  })
+}
 //handle forms functions
 function handleWikiRacerInputs(event){
   event.preventDefault();
@@ -143,7 +150,7 @@ function handleWikiRacerInputs(event){
       }else if (data.status === 5){ //An Error has occurred
         changeCode(
           <div className='centerInfo'  >
-            <div className='errorMsg'> An unexpected error has occured. Please refresh the page or try again. </div>
+            <div className='errorMsg'> These articles were not both valid. Please type new ones. </div>
             <h1> WikiRacer </h1>
             If you have two Wikipedia articles in mind, you can put their article titles here.
             <br></br>
@@ -507,6 +514,7 @@ function handleWikiRacerLinks(value){
           </div>
       )
     }else if (data.status === 1000){//Victory
+  hideDetails();      
       var historyList = [];
       steps++;
       history+= '^' + value;
@@ -691,6 +699,7 @@ function chosenCuratedRandom2Pages(){
 }
 //get Pages
 function getHome(){
+  hideDetails();
   changeCode(
     <div className='centerBox'>
       <h1> Welcome to WikiRacer </h1><br></br>
@@ -701,6 +710,7 @@ function getHome(){
   )
 }
 function getDescription(){
+  hideDetails();
   changeCode(
     <div className="centerInfo">
       <br></br>
@@ -728,6 +738,7 @@ function getDescription(){
   )
 }
 function getWikiRacer(){
+  hideDetails();
   changeCode(
     <div className='centerInfo'  >
       <h1> WikiRacer </h1>
@@ -752,6 +763,7 @@ function getWikiRacer(){
   )
 }
 function get2Pages(){
+  hideDetails();
   changeCode(
     <div className="centerInfo">
     <h1> 2Pages </h1>
