@@ -12,8 +12,14 @@ import './App.css';
 
 function App() {
 
+//wikiracer variables
 var beginning = "";
 var destination = "";
+//2pages variables
+var leftStart =  "";
+var rightStart = "";
+var orientation = "";
+//omnivariables
 var steps = 0;
 var history = "";
 
@@ -33,6 +39,14 @@ const [details,changeDetails] = React.useState({
   steps: 0,
   history: ""
 })
+const [details2,changePages] = React.useState({
+  statusHidden: true,
+  leftCurrent: "",
+  rightCurrent: "",
+  steps: 0,
+  orientation: "",
+  history: ""
+})
 //FIX THIS: Maybe use dotenv to locate server
 var serverLocation = "http://localhost:3001";
 //2018 African Swimming Championships – Women's 50 metre backstroke
@@ -44,6 +58,15 @@ function hideDetails(){
     statusHidden: true
   }
   })
+}
+function hideDetailsPages(){
+  changePages( prev => {
+      return {
+        ...prev,
+        statusHidden: true
+      }
+  }
+  )
 }
 //handle forms functions
 function handleWikiRacerInputs(event){
@@ -483,6 +506,7 @@ function handle2PagesInputs(event){
     })
   }
 }
+// Links
 function handleWikiRacerLinks(value){
   console.log(value);
   fetch(serverLocation + "/getLinks?link=" + value + "&end=" + destination)
@@ -514,7 +538,7 @@ function handleWikiRacerLinks(value){
           </div>
       )
     }else if (data.status === 1000){//Victory
-  hideDetails();      
+  hideDetails();
       var historyList = [];
       steps++;
       history+= '^' + value;
@@ -565,29 +589,6 @@ function handleWikiRacerLinks(value){
 }
 function handle2PagesLinks(pos,value){
   console.log(value)
-}
-//wikiRacer Game pages
-function produceWikiRacerGamePage(current,links){
-  //FIX THIS ALLOW CLICKABLE END VALUE
-  var listToUse = [];
-  for (let i = 0; i < links.length; i++){
-    listToUse.push(
-      <div key={links[i]}>
-      <div className="pseudolink" onClick={() => handleWikiRacerLinks(links[i])}>
-      {links[i]}
-      </div>
-      <br></br></div>)
-  }
-  changeCode(
-    <div>
-    <div className="centerInfo">
-    <br></br>
-    <h1> {current} </h1>
-    <br></br>
-    {listToUse}
-    </div>
-    </div>
-  );
 }
 //wikiRacer Connection Functions
 function chosenTrueRandomWikiRacer(){
@@ -647,8 +648,61 @@ function chosenSoftRandomWikiRacer(){
     produceWikiRacerGamePage(data.current,data.links.split('^'));
   })
 }
+//2Pages Connections Functions
+function chosenTrueRandom2Pages(){
+  fetch(serverLocation + "/check2?random=true",{
+  withCredentials: true, credentials:  'include'
+  }).then(response=>response.json())
+  .then(data => {
+    console.log('Success:', data);
+    changePages({
+      statusHidden: false,
+      leftCurrent: data.leftStart,
+      rightCurrent: data.rightStart,
+      steps: 0
+    })
+    produce2PagesGamePage(data.leftStart,data.rightStart,data.leftLinks.split('^'),data.rightLinks.split('^'));
+  })
+}
+function chosenCuratedRandom2Pages(){
+  fetch(serverLocation + "/check2?random=soft",{
+  withCredentials: true, credentials:  'include'
+  }).then(response=>response.json())
+  .then(data => {
+    console.log('Success:', data);
+    changePages({
+      statusHidden: false,
+      leftCurrent: data.leftStart,
+      rightCurrent: data.rightStart,
+      steps: 0
+    })
+    produce2PagesGamePage(data.leftStart,data.rightStart,data.leftLinks.split('^'),data.rightLinks.split('^'));
+  })
+}
 //2Pages Game Pages
-function produce2PagesGamePage(left,right,steps,lLinks,rLinks){
+function produceWikiRacerGamePage(current,links){
+  //FIX THIS ALLOW CLICKABLE END VALUE
+  var listToUse = [];
+  for (let i = 0; i < links.length; i++){
+    listToUse.push(
+      <div key={links[i]}>
+      <div className="pseudolink" onClick={() => handleWikiRacerLinks(links[i])}>
+      {links[i]}
+      </div>
+      <br></br></div>)
+  }
+  changeCode(
+    <div>
+    <div className="centerInfo">
+    <br></br>
+    <h1> {current} </h1>
+    <br></br>
+    {listToUse}
+    </div>
+    </div>
+  );
+}
+function produce2PagesGamePage(left,right,lLinks,rLinks){
   var lListToUse = [];
   for (let i = 0; i < lLinks.length; i++){
     lListToUse.push(<div key={lLinks[i]}><div className="pseudolink" onClick={() => handle2PagesLinks(left,lLinks[i])}>{lLinks[i]}</div><br></br></div>)
@@ -659,12 +713,6 @@ function produce2PagesGamePage(left,right,steps,lLinks,rLinks){
   }
   changeCode(
     <div>
-    <div className='statusBar'>
-      <span><b>Left:</b> {left}  </span>
-      <span><b>Right:</b> {right}  </span>
-      <span><b>Steps Made:</b> {steps}  </span>
-      <span><Button variant="dark" onClick={get2Pages}>Restart</Button></span>
-    </div>
     <div className="leftLinks half">
       <h2> {left} </h2>
       <br></br>
@@ -678,28 +726,11 @@ function produce2PagesGamePage(left,right,steps,lLinks,rLinks){
     </div>
   );
 }
-//2Pages Connections Functions
-function chosenTrueRandom2Pages(){
-  fetch(serverLocation + "/check2?random=true",{
-  withCredentials: true, credentials:  'include'
-  }).then(response=>response.json())
-  .then(data => {
-    console.log('Success:', data);
-    produce2PagesGamePage(data.cLeft,data.cRight,data.steps,data.linksLeft.split('^'),data.linksRight.split('^'));
-  })
-}
-function chosenCuratedRandom2Pages(){
-  fetch(serverLocation + "/check2?random=soft",{
-  withCredentials: true, credentials:  'include'
-  }).then(response=>response.json())
-  .then(data => {
-    console.log('Success:', data);
-    produce2PagesGamePage(data.cLeft,data.cRight,data.steps,data.linksLeft.split('^'),data.linksRight.split('^'));
-  })
-}
 //get Pages
 function getHome(){
   hideDetails();
+    steps = 0;
+  hideDetailsPages();
   changeCode(
     <div className='centerBox'>
       <h1> Welcome to WikiRacer </h1><br></br>
@@ -711,6 +742,8 @@ function getHome(){
 }
 function getDescription(){
   hideDetails();
+    steps = 0;
+  hideDetailsPages();
   changeCode(
     <div className="centerInfo">
       <br></br>
@@ -739,6 +772,8 @@ function getDescription(){
 }
 function getWikiRacer(){
   hideDetails();
+    steps = 0;
+  hideDetailsPages();
   changeCode(
     <div className='centerInfo'  >
       <h1> WikiRacer </h1>
@@ -764,6 +799,8 @@ function getWikiRacer(){
 }
 function get2Pages(){
   hideDetails();
+    steps = 0;
+  hideDetailsPages();
   changeCode(
     <div className="centerInfo">
     <h1> 2Pages </h1>
@@ -831,6 +868,12 @@ function get2Pages(){
       <span><b>Destination:</b> {details.end}   </span>
       <span><b>Steps Made:</b> {details.steps} </span>
       <span><Button variant="dark" onClick={getWikiRacer}>Restart</Button></span>
+    </div>
+    <div className='statusBar' hidden={details2.statusHidden}>
+      <span><b>Left:</b> {details2.leftCurrent}  </span>
+      <span><b>Right:</b> {details2.rightCurrent}  </span>
+      <span><b>Steps Made:</b> {steps}  </span>
+      <span><Button variant="dark" onClick={get2Pages}>Restart</Button></span>
     </div>
       {code}
     </div>
