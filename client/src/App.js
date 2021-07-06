@@ -359,7 +359,7 @@ function handle2PagesInputs(event){
     )
   }
   else{
-    fetch(serverLocation + "/check2?random=false&start=" + start + "&end=" + end,{
+    fetch(serverLocation + "/check2?random=false&left=" + start + "&right=" + end,{
         withCredentials: true, credentials:  'include'
     })
     .then(response=>response.json())
@@ -376,16 +376,18 @@ function handle2PagesInputs(event){
           <input id='startPoint' name="start"></input><br></br>
           <label>Wikipedia Article Start Point 2: </label><br></br>
           <input id='endPoint' name="end"></input><br></br>
-          </form><br></br>
-            <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
-          <br></br><br></br>
+          <br></br>
+          <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+          </form>
+          <br></br>
+          <br></br>
           <Button variant="dark" onClick={chosenCuratedRandom2Pages}> Two Random Curated Articles</Button> <br></br>
           <br></br><br></br>
           <Button variant="dark" onClick={chosenTrueRandom2Pages}> Any Two Random Wikipedia Articles</Button> <br></br>
           </div>
         )
       }
-      else if (data.status === 5){///An error has occurred
+      else if (data.status === -1){///An error has occurred
         changeCode(
           <div className="centerInfo">
             <div className='errorMsg'> An unexpected error has occured. Please refresh the page or try again. </div>
@@ -406,7 +408,7 @@ function handle2PagesInputs(event){
           </div>
         )
       }
-      else if (data.status === 13){/// Second starting point ambiguous
+      else if (data.status === 11){/// Second starting point ambiguous
         var eList = [];
         var ee = data.rList.split("^");
         for (let x = 0; x < ee.length; x++){
@@ -414,17 +416,18 @@ function handle2PagesInputs(event){
         }
         changeCode(
         <div>
-        Your first starting point, {data.lTerm}, was not ambiguous, so there is no need to change it.
+        Your first starting point, {data.leftTerm}, was not ambiguous, so there is no need to change it.
         <form onSubmit={handle2PagesInputs}>
-         <input type='hidden' id='startPoint' value={data.lTerm}></input>
-          Your second starting point, {data.rTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your ending point.
+         <input type='hidden' id='startPoint' value={data.leftTerm}></input>
+          Your second starting point, {data.rightTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your ending point.
           <br></br>
           <select id='endPoint'>
             {eList}
           </select>
           <br></br>
-          <Button variant="dark" type="submit" >Confirm</Button> <br></br>
-        </form>
+          <br></br>
+          <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+          </form>
         </div>
       )
       }
@@ -436,21 +439,22 @@ function handle2PagesInputs(event){
         }
         changeCode(
         <div>
-        Your second starting point, {data.rTerm}, was not ambiguous, so there is no need to change it.
+        Your second starting point, {data.rightTerm}, was not ambiguous, so there is no need to change it.
         <form onSubmit={handle2PagesInputs}>
-         <input type='hidden' id='endPoint' value={data.rTerm}></input>
-          Your first starting point, {data.lTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your ending point.
+         <input type='hidden' id='endPoint' value={data.rightTerm}></input>
+          Your first starting point, {data.leftTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your ending point.
           <br></br>
           <select id='startPoint'>
             {sList}
           </select>
           <br></br>
-          <Button variant="dark" type="submit" >Confirm</Button> <br></br>
-        </form>
+          <br></br>
+          <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+          </form>
         </div>
       )
       }
-      else if (data.status === 17){/// Both starting points ambiguous
+      else if (data.status === 99){/// Both starting points ambiguous
         var startList = [];
         var sss = data.lList.split("^");
         var endList = [];
@@ -463,13 +467,13 @@ function handle2PagesInputs(event){
         }
         changeCode(
           <form onSubmit={handle2PagesInputs}>
-            Your first starting point, {data.lTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your starting point.
+            Your first starting point, {data.leftTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your starting point.
             <br></br>
             <select name='start' id='startPoint'>
             {startList}
             </select>
             <br></br>
-            Your second starting point, {data.rTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your ending point.
+            Your second starting point, {data.rightTerm}, was ambiguous. You're going to need to be more specific. Here are options based on your ending point.
             <br></br>
             <select name='end' id='endPoint'>
             {endList}
@@ -480,7 +484,15 @@ function handle2PagesInputs(event){
         )
       }
       else if (data.status === 0){//All has gone well
-          produce2PagesGamePage(data.cLeft,data.cRight,data.steps,data.linksLeft.split('^'),data.linksRight.split('^'));
+          leftStart = data.leftTitle;
+          rightStart = data.rightTitle;
+          changePages({
+            statusHidden: false,
+            leftCurrent: data.leftTitle,
+            rightCurrent: data.rightTitle,
+            steps: 0
+          })
+          produce2PagesGamePage(data.leftTitle,data.rightTitle,data.leftLinks.split('^'),data.rightLinks.split('^'));
       }
       else if (data.status === 10000){
         changeCode(
