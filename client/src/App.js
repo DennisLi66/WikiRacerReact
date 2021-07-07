@@ -49,7 +49,6 @@ const [details2,changePages] = React.useState({
   orientation: "",
   history: ""
 })
-//FIX THIS: Maybe use dotenv to locate server
 var serverLocation = "http://localhost:3001";
 //FIX THIS 2018 African Swimming Championships – Women's 50 metre backstroke
 //the above produces questionable link at the bottom
