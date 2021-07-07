@@ -18,6 +18,8 @@ var destination = "";
 //2pages variables
 var leftStart =  "";
 var rightStart = "";
+var currentLeft = "";
+var currentRight = "";
 var orientation = "";
 //omnivariables
 var steps = 0;
@@ -526,6 +528,7 @@ function handleWikiRacerLinks(value){
   .then(data => {
     console.log(data);
     if (data.status === -1){
+      hideDetails();
       changeCode(
           <div className='centerInfo'  >
           <div className='errorMsg'> {data.message} </div>
@@ -550,7 +553,7 @@ function handleWikiRacerLinks(value){
           </div>
       )
     }else if (data.status === 1000){//Victory
-  hideDetails();
+      hideDetails();
       var historyList = [];
       steps++;
       history+= '^' + value;
@@ -564,14 +567,14 @@ function handleWikiRacerLinks(value){
       }
       var grammar = (steps === 1 ? 'step' : 'steps')
       changeCode(
-        <div class='centerInfo'>
+        <div className='centerInfo'>
         <h1> Congratulations! </h1>
         You reached {destination} from {beginning} in {steps} {grammar}.
         <br></br><br></br>
-          <a class="btn btn-dark" href='/restart'> New Game </a>
+          <Button variant="dark" onClick={getWikiRacer}>Restart</Button> <br></br><br></br>
         <br></br><br></br>
           <h2> History </h2>
-          <table class="table">
+          <table className="table">
             <thead>
               <tr>
                 <th scope='col'> Step Number </th>
@@ -600,7 +603,103 @@ function handleWikiRacerLinks(value){
 
 }
 function handle2PagesLinks(pos,value){
-  console.log(value)
+  //things to do: increase orientation, steps, and histoty
+  //change current left and right, done in producegamepage
+  console.log(value);
+  var otherSide = (pos === "left" ? currentRight : currentLeft);
+  fetch(serverLocation + "/getLinks?link=" + value + "&end=" + otherSide)
+  .then(response=>response.json())
+  .then(data => {
+    console.log(data);
+    if (data.status === 1000){//Victory
+      hideDetailsPages();
+      var historyList = [];
+      steps++;
+      history+= (history === "" || !history ? value : '^' + value);
+      orientation += (orientation === "" || !orientation ? "" : "^") + (pos === "left" ? "L" : "R");
+      var grammar = (steps === 1 ? 'step' : 'steps');
+      var prevLeft = leftStart;
+      var prevRight = rightStart;
+      historyList.push(
+        <tr key={0}>
+        <td> 0 </td>
+        <td> {prevLeft} </td>
+        <td> {prevRight} </td>
+        </tr>
+      )
+      console.log(history.split("^"));
+      console.log(orientation.split("^"));
+      for (let i = 0; i < history.split('^').length; i++){
+        if (orientation.split('^')[i] === "L"){
+          historyList.push(
+            <tr key={i+1}>
+            <td> {i + 1} </td>
+            <td> {history.split('^')[i]} </td>
+            <td> {prevRight} </td>
+            </tr>
+          )
+          prevLeft = history.split('^')[i];
+        }
+        else{
+          historyList.push(
+            <tr key={i+1}>
+            <td> {i + 1} </td>
+            <td> {prevLeft} </td>
+            <td> {history.split('^')[i]} </td>
+            </tr>
+          )
+          prevRight = history.split('^')[i];
+        }
+      }
+      changeCode(
+        <div className='centerInfo'>
+        <h1> Congratulations! </h1>
+        You reached {value} from {leftStart} and {rightStart} in {steps} {grammar}.
+        <br></br><br></br>
+          <Button variant="dark" onClick={get2Pages}>Restart</Button> <br></br><br></br>
+        <br></br><br></br>
+        <h2> History </h2>
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope='col'> Step Number </th>
+              <th scope='col'> Left Article Title</th>
+              <th scope='col'> Right Article Title</th>
+            </tr>
+          </thead>
+          <tbody>
+            {historyList}
+          </tbody>
+        </table>
+        </div>
+      )
+    }
+    else if (data.status === 0){//Successful
+
+    }
+    else if (data.status === -1){//Error
+      hideDetailsPages();
+      changeCode(
+        <div className="centerInfo">
+        <div className='errorMsg'> {data.message} </div>
+        <h1> 2Pages </h1>
+        If you have two Wikipedia articles in mind, you can put their article titles here.
+        <br></br>
+          <form onSubmit={handle2PagesInputs}>
+        <label>Wikipedia Article Start Point 1:</label><br></br>
+        <input id='startPoint' name="start"></input><br></br>
+        <label>Wikipedia Article Start Point 2: </label><br></br>
+        <input id='endPoint' name="end"></input><br></br><br></br>
+        <Button variant="dark" type="submit" >Confirm Choices</Button> <br></br>
+        </form>
+        <br></br><br></br>
+        <Button variant="dark" onClick={chosenCuratedRandom2Pages}> Two Random Curated Articles</Button> <br></br>
+        <br></br><br></br>
+        <Button variant="dark" onClick={chosenTrueRandom2Pages}> Any Two Random Wikipedia Articles</Button> <br></br>
+        </div>
+      )
+    }
+  })
 }
 //wikiRacer Connection Functions
 function chosenTrueRandomWikiRacer(){
@@ -715,13 +814,15 @@ function produceWikiRacerGamePage(current,links){
   );
 }
 function produce2PagesGamePage(left,right,lLinks,rLinks){
+  currentRight = right;
+  currentLeft = left;
   var lListToUse = [];
   for (let i = 0; i < lLinks.length; i++){
-    lListToUse.push(<div key={lLinks[i]}><div className="pseudolink" onClick={() => handle2PagesLinks(left,lLinks[i])}>{lLinks[i]}</div><br></br></div>)
+    lListToUse.push(<div key={lLinks[i]}><div className="pseudolink" onClick={() => handle2PagesLinks('left',lLinks[i])}>{lLinks[i]}</div><br></br></div>)
   }
   var rListToUse = [];
   for (let i = 0; i < rLinks.length; i++){
-    rListToUse.push(<div key={rLinks[i]}><div className="pseudolink" onClick={() => handle2PagesLinks(right,rLinks[i])}>{rLinks[i]}</div><br></br></div>)
+    rListToUse.push(<div key={rLinks[i]}><div className="pseudolink" onClick={() => handle2PagesLinks('right',rLinks[i])}>{rLinks[i]}</div><br></br></div>)
   }
   changeCode(
     <div>
@@ -810,6 +911,8 @@ function getWikiRacer(){
   )
 }
 function get2Pages(){
+  currentLeft = "";
+  currentRight = "";
   hideDetails();
     steps = 0;
   hideDetailsPages();
