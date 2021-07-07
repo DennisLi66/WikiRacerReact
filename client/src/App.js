@@ -21,6 +21,8 @@ var rightStart = "";
 var currentLeft = "";
 var currentRight = "";
 var orientation = "";
+var prevLeftList = "";
+var prevRightList = "";
 //omnivariables
 var steps = 0;
 var history = "";
@@ -494,7 +496,7 @@ function handle2PagesInputs(event){
             rightCurrent: data.rightTitle,
             steps: 0
           })
-          produce2PagesGamePage(data.leftTitle,data.rightTitle,data.leftLinks.split('^'),data.rightLinks.split('^'));
+          produce2PagesGamePage(data.leftTitle,data.rightTitle,data.leftLinks,data.rightLinks);
       }
       else if (data.status === 10000){
         changeCode(
@@ -591,8 +593,7 @@ function handleWikiRacerLinks(value){
       changeDetails( prev => {
         return{
           ...prev,
-          steps: prev.steps + 1,
-          history: prev.history + '^' + data.current
+          steps: prev.steps + 1
         }
       })
       steps++;
@@ -675,7 +676,20 @@ function handle2PagesLinks(pos,value){
       )
     }
     else if (data.status === 0){//Successful
-
+      changePages( prev => {
+        return {
+        ...prev,
+        steps: prev.steps + 1
+      }
+      })
+      steps++;
+      history += (history === "" || !history ? value : "^" + value);
+      orientation += (orientation === "" || !orientation ? "" : "^") + (pos === 'left' ? 'L' : 'R');
+      if (pos === 'left'){
+        produce2PagesGamePage(value,currentRight,data.links,prevRightList)
+      }else{
+        produce2PagesGamePage(currentLeft,value,prevLeftList,data.links)
+      }
     }
     else if (data.status === -1){//Error
       hideDetailsPages();
@@ -772,7 +786,7 @@ function chosenTrueRandom2Pages(){
       rightCurrent: data.rightStart,
       steps: 0
     })
-    produce2PagesGamePage(data.leftStart,data.rightStart,data.leftLinks.split('^'),data.rightLinks.split('^'));
+    produce2PagesGamePage(data.leftStart,data.rightStart,data.leftLinks,data.rightLinks);
   })
 }
 function chosenCuratedRandom2Pages(){
@@ -787,7 +801,7 @@ function chosenCuratedRandom2Pages(){
       rightCurrent: data.rightStart,
       steps: 0
     })
-    produce2PagesGamePage(data.leftStart,data.rightStart,data.leftLinks.split('^'),data.rightLinks.split('^'));
+    produce2PagesGamePage(data.leftStart,data.rightStart,data.leftLinks,data.rightLinks);
   })
 }
 //2Pages Game Pages
@@ -813,7 +827,11 @@ function produceWikiRacerGamePage(current,links){
     </div>
   );
 }
-function produce2PagesGamePage(left,right,lLinks,rLinks){
+function produce2PagesGamePage(left,right,laLinks,raLinks){
+  prevLeftList = laLinks;
+  prevRightList = raLinks;
+  var lLinks = laLinks.split('^');
+  var rLinks = raLinks.split('^');
   currentRight = right;
   currentLeft = left;
   var lListToUse = [];
