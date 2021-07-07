@@ -7,9 +7,7 @@ import Button from 'react-bootstrap/Button'
 // import logo from './logo.svg';
 import './App.css';
 // const Cookies = require("react-cookies");
-
-//FIX THIS REMEMBER TO HIDE BAR
-
+//FIX THIS: REMOVE Irrelevant packages
 function App() {
 
 //wikiracer variables
@@ -53,8 +51,14 @@ const [details2,changePages] = React.useState({
 })
 //FIX THIS: Maybe use dotenv to locate server
 var serverLocation = "http://localhost:3001";
-//2018 African Swimming Championships – Women's 50 metre backstroke
+//FIX THIS 2018 African Swimming Championships – Women's 50 metre backstroke
 //the above produces questionable link at the bottom
+//assistance Functions
+function openInNewWindow(value){
+  console.log("https://en.wikipedia.org/wiki/" + value);
+  window.open("https://en.wikipedia.org/wiki/" + value,"_blank");
+}
+//background function
 function hideDetails(){
   changeDetails( prev => {
     return {
@@ -806,7 +810,6 @@ function chosenCuratedRandom2Pages(){
 }
 //2Pages Game Pages
 function produceWikiRacerGamePage(current,links){
-  //FIX THIS ALLOW CLICKABLE END VALUE
   var listToUse = [];
   for (let i = 0; i < links.length; i++){
     listToUse.push(
@@ -998,7 +1001,7 @@ function get2Pages(){
     </Navbar>
     <div className='statusBar' hidden={details.statusHidden}>
       <span><b>Current:</b> {details.current}   </span>
-      <span><b>Destination:</b> {details.end}   </span>
+      <span className='pseudolink' onClick={() => openInNewWindow(details.end)}><b>Destination:</b> {details.end}   </span>
       <span><b>Steps Made:</b> {details.steps} </span>
       <span><Button variant="dark" onClick={getWikiRacer}>Restart</Button></span>
     </div>
