@@ -4,7 +4,6 @@ import Nav from 'react-bootstrap/Nav'
 import Button from 'react-bootstrap/Button'
 import './App.css';
 function App() {
-//FIX THIS: add favicon
 //wikiracer variables
 var beginning = "";
 var destination = "";
@@ -49,7 +48,7 @@ var serverLocation = "http://localhost:3001";
 //the above produces questionable link at the bottom
 //assistance Functions
 function openInNewWindow(value){
-  console.log("https://en.wikipedia.org/wiki/" + value);
+  //console.log("https://en.wikipedia.org/wiki/" + value);
   window.open("https://en.wikipedia.org/wiki/" + value,"_blank");
 }
 //background function
@@ -950,29 +949,6 @@ function get2Pages(){
     </div>
   )
 }
-
-//Test
-// function button1(){
-//   fetch(serverLocation + "/test",{
-//     method: "GET",
-//     credentials: 'include',
-//     // withCredentials: true
-//   })
-//     .then(response=>response.json())
-//     .then(data => {
-//       console.log(data);
-//       console.log(data['x-access-token'])
-//     })
-// }
-// function button2(){
-//   fetch(serverLocation + "/test2",{
-//   withCredentials: true, credentials: 'include'
-//   })
-//     .then(response=>response.json())
-//     .then(data => {
-//       console.log('Success:', data);
-//     })
-// }
 
   return (
     <div className="App">

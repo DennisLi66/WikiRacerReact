@@ -1,6 +1,5 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const cookieParser = require('cookie-parser');
 const wiki = require('wikijs').default;
 const axios = require('axios');
 const cheerio = require('cheerio');
@@ -48,24 +47,24 @@ function getTwoRandomSafe() {
 function getTwoRandomChaos() {
   var duoList = [];
   var articles = [
-    "Abraham_Lincoln",
+    "Abraham Lincoln",
     "Jason Mraz",
     "Nintendo",
-    "Jimi_Hendrix",
+    "Jimi Hendrix",
     "Cashew",
     "Javascript",
     "Ikea",
     "Nitrogen",
-    'Georgia_(Country)',
+    'Georgia (Country)',
     "Tornado",
-    "Count_Dracula",
+    "Count Dracula",
     "Marie Curie",
     "Napkin",
-    "Raid:_Shadow_Legends",
+    "Raid: Shadow Legends",
     "M. Night Shyamalan",
     "Walt Disney",
     "Dentistry",
-    "Aura_(paranormal)",
+    "Aura (paranormal)",
     "Artificial intelligence",
     "Emu",
     "Parkour",
@@ -120,7 +119,6 @@ res.header(
 )
 next()
 })
-app.use(cookieParser());
 app.use(bodyParser.json());
 
 app.get("/check", function(req, res) {
@@ -132,8 +130,10 @@ app.get("/check", function(req, res) {
       message: "A meaningful value for random has not been assigned."
     })
   } else if (random === 'false') {
-    var start = req.query.start;
-    var end = req.query.end;
+    var start = req.query.start.toLowerCase();
+    var end = req.query.end.toLowerCase();
+    console.log(start);
+    console.log(end);
     if (!start && !end) {
       return res.status(200).json({
         status: 1,
@@ -241,7 +241,9 @@ app.get("/check", function(req, res) {
                         var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
                         if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
                           links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
-                          links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")) {
+                          links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")
+                          && links[i].attribs.title !== "View the content page [c]") {
+            console.log("Link Title: " + links[i].attribs.title + " HREF: " + links[i].attribs.href);
                           linkSet.add(links[i].attribs.title);
                         }
                       }
@@ -319,7 +321,7 @@ app.get("/check", function(req, res) {
               var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
               if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
                 links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
-                links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")) {
+                links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")&& links[i].attribs.title !== "View the content page [c]") {
                 linkSet.add(links[i].attribs.title);
               }
             }
@@ -348,7 +350,7 @@ app.get("/check", function(req, res) {
           var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
           if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
             links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
-            links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")) {
+            links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")&& links[i].attribs.title !== "View the content page [c]") {
             linkSet.add(links[i].attribs.title);
           }
         }
@@ -376,7 +378,7 @@ app.get("/check", function(req, res) {
           var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
           if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
             links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
-            links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")) {
+            links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")&& links[i].attribs.title !== "View the content page [c]") {
             linkSet.add(links[i].attribs.title);
           }
         }
@@ -404,8 +406,8 @@ app.get("/check2", function(req, res) {
       message: "A meaningful value for random has not been assigned."
     })
   } else if (random === 'false'){
-    var left = req.query.left;
-    var right = req.query.right;
+    var left = req.query.left.toLowerCase();
+    var right = req.query.right.toLowerCase();
     if (!left && !end){
       return res.status(200).json({
         status: -1,
@@ -598,7 +600,7 @@ app.get("/check2", function(req, res) {
               var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
               if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
                 links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
-                links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")) {
+                links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")&& links[i].attribs.title !== "View the content page [c]") {
                 linkSet.add(links[i].attribs.title);
               }
             }
@@ -646,7 +648,7 @@ app.get("/check2", function(req, res) {
           var regex = '^\/wiki\/[\-.,%"\'#_\(\)A-Za-z0-9]+$';
           if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
             links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
-            links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")) {
+            links[i].attribs.href !== '/wiki/' + start.replace(/ /g, "_")&& links[i].attribs.title !== "View the content page [c]") {
             linkSet.add(links[i].attribs.title);
           }
         }
@@ -705,6 +707,7 @@ app.get("/getLinks",function(req,res){
           if (links[i].attribs && links[i].attribs.title && links[i].attribs.href &&
             links[i].attribs.href.match(regex) && links[i].attribs.href !== '/wiki/Main_Page' &&
             links[i].attribs.href !== '/wiki/' + req.query.link.replace(/ /g, "_")) {
+            // console.log("Link Title: " + links[i].attribs.title + " HREF: " + links[i].attribs.href);
             linkSet.add(links[i].attribs.title);
           }
         }
