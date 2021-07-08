@@ -1,15 +1,10 @@
 import React from "react";
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
-// import Form from 'react-bootstrap/Form'
-// import FormControl from 'react-bootstrap/FormControl'
 import Button from 'react-bootstrap/Button'
-// import logo from './logo.svg';
 import './App.css';
-// const Cookies = require("react-cookies");
-//FIX THIS: REMOVE Irrelevant packages
 function App() {
-
+//FIX THIS: add favicon
 //wikiracer variables
 var beginning = "";
 var destination = "";
